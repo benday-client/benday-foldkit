@@ -57,7 +57,7 @@ Oracle source: `benday-client/benday` at
 | dependency declarations are not audited with our config | shared `skipLibCheck: true` | dependency `.d.ts` are their authors' contract; every authored source keeps the full strict flag set, and the dependency-free packages' emitted declarations are compiled by an external NodeNext consumer with `skipLibCheck: false` (`strict-pure` in `scripts/check-packages.ts`) | integration owner | foundation: done |
 | external consumer proof for all eight packages | `scripts/check-packages.ts` | build without app, `pnpm pack`, publint strict, ATTW esm-only, temporary NodeNext project with tarball overrides, no workspace/NODE_PATH, strict compile, pure runtime imports with no browser globals; a second consumer compiles the four dependency-free packages with `skipLibCheck: false` | integration owner | foundation: done |
 | unit/browser runs cannot silently select nothing | `scripts/check-test-results.ts` | `pnpm test` and `pnpm test:browser` both end in the guard; 171 unit tests; 21 browser tests across three named projects, including fragment focus on a query route | integration owner | foundation: done |
-| CI runs the fatal gate on PRs, no deploy | `.github/workflows/check.yml` + branch protection | run [45080595173](https://github.com/benday-client/benday-foldkit/actions/runs/45080595173) passed `pnpm check` on `e3752db` in 110s with all three engines; `main` protection readback: required check `check` (strict), admins enforced, 0 required approvals, conversation resolution, no force push, no deletion; merge commits only, squash and rebase disabled; no deployment step | integration owner | foundation: done |
+| CI runs the fatal gate on PRs, no deploy | `.github/workflows/check.yml` + repository ruleset `main` (`27863175`) | run [45080595173](https://github.com/benday-client/benday-foldkit/actions/runs/45080595173) passed `pnpm check` on `e3752db` in 110s with all three engines; the ruleset targets `~DEFAULT_BRANCH` with `deletion`, `non_fast_forward`, `pull_request` (0 approvals, thread resolution, no bypass actors) and strict required check `check`; legacy branch protection deleted (API 404); squash and rebase disabled at repository level; no deployment step | integration owner | foundation: done |
 
 ## Reuse provenance
 
@@ -106,14 +106,17 @@ Still open from review: real-browser media lifecycle and deck geometry evidence;
 
 ## Open blockers and limits
 
-1. **Merged and protected.** PR #2 merged at `2026-11-22T23:03:17Z` as `8474b9c`,
-   with the head commit `6c6bc82` GitHub-verified (`reason=valid`). The three
-   content commits were re-signed with the account's registered signing key
-   `lexa-github` because GitHub did not know `contact@qex.at` as a signing key;
-   trees, parents, authors and messages are unchanged. PR #1 was auto-closed
-   during the re-signing force push and stays closed as superseded. `main`
-   requires the strict `check` context, enforces rules for admins, requires
-   conversation resolution, and refuses force pushes and deletion.
+1. **Merged, protected and migrated to a ruleset.** PR #2 merged at
+   `2026-11-22T23:03:17Z` as `8474b9c`; PR #3 (post-merge record, concise
+   README, split development and library docs) merged as `563e229`. Head
+   commits are GitHub-verified (`reason=valid`). The three content commits were
+   re-signed with the account's registered signing key `lexa-github` because
+   GitHub did not know `contact@qex.at` as a signing key; trees, parents,
+   authors and messages are unchanged. PR #1 was auto-closed during the
+   re-signing force push and stays closed as superseded. Ruleset `main`
+   (`27863175`) replaced legacy branch protection and enforces deletion and
+   force-push blocks, pull-request-only delivery with thread resolution and no
+   bypass actors, and the strict `check` context.
 2. **Foundation gate is not fully met.** Missing: reviewed old/new comparison
    (captures exist, review does not), benchmark harness and approved numeric
    budgets, and deck geometry plus media lifecycle browser evidence.
