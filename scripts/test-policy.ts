@@ -3,7 +3,7 @@
  * Runs each known-bad fixture through the real command and a clean fixture
  * through the same command as a positive control.
  */
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
@@ -179,14 +179,27 @@ try {
 
   // a browser report missing an engine must be rejected ---------------------
   const playwrightCase = join(work, 'playwright')
-  write(join(playwrightCase, 'probe.spec.ts'), `test('trivial', () => undefined)`)
+  write(
+    join(playwrightCase, 'probe.spec.ts'),
+    `import { test } from '@playwright/test'\ntest('trivial', () => undefined)`,
+  )
   write(
     join(playwrightCase, 'playwright.config.ts'),
     `import { defineConfig } from '@playwright/test'\nexport default defineConfig({ testDir: '.', reporter: [['json', { outputFile: 'report.json' }]], projects: [{ name: 'chromium' }] })`,
   )
   const playwrightReport = join(playwrightCase, 'report.json')
   rmSync(playwrightReport, { force: true })
-  run('pnpm', ['exec', 'playwright', 'test', '--config', join(playwrightCase, 'playwright.config.ts')], root)
+  const runnerStatus = run(
+    'pnpm',
+    ['exec', 'playwright', 'test', '--config', join(playwrightCase, 'playwright.config.ts')],
+    root,
+  )
+  if (runnerStatus !== 0) {
+    throw new Error(`browser control could not run, so it cannot reject the missing engines (${String(runnerStatus)})`)
+  }
+  if (!existsSync(playwrightReport)) {
+    throw new Error('browser control produced no report, so it cannot reject the missing engines')
+  }
   expectRejected('playwright/missing-engines', () =>
     run('pnpm', ['exec', 'tsx', 'scripts/check-test-results.ts', 'playwright', playwrightReport], root),
   )

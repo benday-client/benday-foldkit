@@ -12,6 +12,12 @@ describe('bayer tile', () => {
     expect(svg.match(/<rect /g)).toHaveLength(64)
   })
 
+  it('pins the first and last threshold cells', () => {
+    const svg = buildBayerPatternSvg()
+    expect(svg).toContain('x="0" y="0" width="2" height="2" fill="rgb(99.219%, 99.219%, 99.219%)"')
+    expect(svg).toContain('x="14" y="14" width="2" height="2" fill="rgb(0.781%, 0.781%, 0.781%)"')
+  })
+
   it('encodes to the same bytes a browser btoa would produce', () => {
     const uri = buildBayerPatternDataUri()
     expect(uri).toBe(`data:image/svg+xml;base64,${btoa(buildBayerPatternSvg())}`)
@@ -57,12 +63,31 @@ describe('createDitherFilter', () => {
   it('keeps the source grunge and arithmetic constants', () => {
     const turbulence = spec.filters[0]?.children[1]
     expect(turbulence?.attributes).toMatchObject({ baseFrequency: 0.9, seed: 17, numOctaves: '2' })
-    expect(spec.filters[0]?.children[3]?.attributes).toMatchObject({
+    expect(spec.filters[0]?.children[3]?.attributes).toEqual({
+      in: 'gray',
+      in2: 'noise-gray',
+      operator: 'arithmetic',
+      k1: '0',
       k2: '1',
       k3: '0.2',
       k4: '-0.1',
+      result: 'grungy',
     })
-    expect(spec.filters[0]?.children[6]?.attributes).toMatchObject({ k2: '1', k3: '0.85', k4: '-0.425' })
+    expect(spec.filters[0]?.children[6]?.attributes).toEqual({
+      in: 'grungy',
+      in2: 'tile',
+      operator: 'arithmetic',
+      k1: '0',
+      k2: '1',
+      k3: '0.85',
+      k4: '-0.425',
+      result: 'mixed',
+    })
+    expect(spec.filters[0]?.children[4]?.attributes).toMatchObject({
+      href: expect.stringMatching(/^data:image\/svg\+xml;base64,/),
+      preserveAspectRatio: 'none',
+      result: 'pattern',
+    })
     expect(spec.filters[0]?.children[8]?.children.map((node) => node.attributes)).toEqual([
       { type: 'table', tableValues: '0.035 0.77' },
       { type: 'table', tableValues: '0.035 0.77' },
