@@ -11,7 +11,8 @@ Oracle source: `benday-client/benday` at
 
 | requirement and oracle | enforcement | evidence | owner and closure | gate and status |
 |---|---|---|---|---|
-| one fully empty signed root commit on `main` | no files, signed commit | tree lists no paths; `git log --show-signature` reports `G` signed by `me@lexa.qex.at` with ED25519 `SHA256:caYY3qgh…`; commit `8051acaf` | integration owner | foundation: **done locally**, push pending |
+| one fully empty signed root commit on `main` | no files, signed commit | tree lists no paths; commit `6c9fe89`; GitHub reports `verified=true reason=valid` for ED25519 `SHA256:+iUOnFOmcLGD9YbPscOWfqgzXdgFGAmODrRtAC1mtvQ` | integration owner | foundation: done |
+| public remote exists without GitHub-generated content | `gh repo create` with no auto-init | `benday-client/benday-foldkit` created public; remote `main` is the empty bootstrap `6c9fe89`; the content lives on `foundation/workspace` at `ca13aba` | integration owner | foundation: done |
 | destination is a new sibling repository, reference untouched | separate checkout | `benday-foldkit` created under `src/lexa`; reference HEAD still `237e98b3` and clean | integration owner | foundation: done |
 | eight independent reusable libraries, app-private workspace | workspace manifests, `exports` maps | `packages/{richtext,bsky-model,bsky-client,draft-store,deck,dither,media,effect-query}`; `apps/benday` | integration owner | foundation: done |
 | pinned toolchain with one frozen lockfile | catalog + `--frozen-lockfile` | `pnpm-lock.yaml`; installed Node 24.21.0, pnpm 12.16.1, foldkit 0.171.0, effect 4.1.5, @effect/platform-browser 4.1.5, typescript 7.0.2, vite 8.3.5, vitest 5.0.5, playwright 1.64.1, @atproto/api 0.29.6, oauth-client-browser 0.5.11, hls.js 1.7.4, @tanstack/query-core 5.105.0 | integration owner | foundation: done |
@@ -85,23 +86,19 @@ workflow, and all React hooks/components/stores/tests.
 
 ## Open blockers and limits
 
-1. **Remote creation and protection are blocked.** No GitHub API credential or
-   `gh` installation exists on this host; SSH authentication as
-   `lexa-delcourt` works, but `git ls-remote` on the authorized URL answers
-   `Repository not found`, and no API path can create the repository or read
-   protection settings. `benday-client/benday-foldkit` therefore does not exist
-   yet, and PR-only protection, the required `check` context and
-   verified-signature readback are unproven.
-   Local placement: this workspace policy refuses branch switches in a shared
-   checkout, so the foundation slice is commit `d3e8c94` on the local `main`
-   above the empty bootstrap `8051aca`. Nothing was pushed. When the remote
-   exists, the intended sequence is: push `8051aca` as remote `main`, push
-   `d3e8c94` to `refs/heads/foundation/workspace`, and open the pull request
-   from that branch, so remote `main` never receives a direct content commit.
-2. **Foundation gate is not fully met.** Missing: remote/protection evidence,
-   reviewed old/new comparison (captures exist, review does not), benchmark
-   harness and approved numeric budgets, deck geometry and media lifecycle
-   browser evidence, and the first CI run.
+1. **Protection is pending its first green run.** The repository exists and both
+   commits are GitHub-verified. The three content commits were re-signed with
+   the account's registered signing key `lexa-github` because GitHub did not
+   know `contact@qex.at` as a signing key; trees, parents, authors and messages
+   are unchanged. Pull request #2 carries the slice from `foundation/workspace`
+   into the bootstrap-only `main`. PR-only protection, the required `check`
+   context and conversation resolution are enabled only after that run is
+   green; PR #1 was auto-closed during the re-signing force push and stays
+   closed as superseded.
+2. **Foundation gate is not fully met.** Missing: reviewed old/new comparison
+   (captures exist, review does not), benchmark harness and approved numeric
+   budgets, deck geometry and media lifecycle browser evidence, and the final
+   protection readback.
 3. **Dependency declarations are out of scope by decision.** The shared base
    sets `skipLibCheck: true`; the pinned SDK declarations are not re-audited
    under our strict flags. Our own emitted declarations are still checked from
