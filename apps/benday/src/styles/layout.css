@@ -1,0 +1,31 @@
+/* SPDX-License-Identifier: GPL-3.0-only */
+/* App shell: the skip link that carries keyboard users into the route, and the
+   focusable main target it points at. */
+
+.b-skip {
+  position: absolute;
+  top: calc(-1 * var(--page-gutter) - var(--space-8));
+  left: var(--page-gutter);
+  z-index: calc(var(--z-dialog) + 1);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--accent);
+  background: var(--panel);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-chrome);
+  letter-spacing: normal;
+  line-height: var(--leading-chrome);
+  text-transform: lowercase;
+}
+
+.b-skip:focus {
+  top: var(--space-2);
+}
+
+#main {
+  min-height: 100dvh;
+}
+
+#main:focus {
+  outline: none;
+}

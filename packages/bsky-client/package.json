@@ -1,0 +1,39 @@
+{
+  "name": "@benday-client/bsky-client",
+  "version": "0.1.0",
+  "private": true,
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "sideEffects": false,
+  "files": ["dist", "LICENSE"],
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./session": {
+      "types": "./dist/session/index.d.ts",
+      "import": "./dist/session/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@benday-client/bsky-model": "workspace:*",
+    "@benday-client/richtext": "workspace:*"
+  },
+  "peerDependencies": {
+    "@atproto/api": "0.29.6",
+    "@atproto/oauth-client-browser": "0.5.11",
+    "effect": "~4.1.0"
+  },
+  "devDependencies": {
+    "@atproto/api": "catalog:",
+    "@atproto/oauth-client-browser": "catalog:",
+    "effect": "catalog:",
+    "typescript": "catalog:"
+  }
+}
