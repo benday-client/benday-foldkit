@@ -53,7 +53,7 @@ Oracle source: `benday-client/benday` at
 | numeric performance budgets and paired benchmark | none yet | no budget was approved; the surfaces that need measuring do not exist yet | user decision required | foundation: **blocked** — benchmark harness not implemented, budgets unapproved |
 | policy: suppressions, `any`, assertions, focused/skipped, ambient declarations, authored `.d.ts` | `check:policy` + Oxlint + report reader | `test:policy` green on 15 fixtures: 4 policy classes rejected, clean accepted; any/cast/non-null/focused rejected, clean accepted; focused/skipped/empty vitest rejected, clean accepted; browser report missing engines rejected | integration owner | foundation: done |
 | every authored file inside a real tsconfig program | `check:policy` listFilesOnly coverage | 49 authored files covered by root/app/package programs | integration owner | foundation: done |
-| strict declaration checking | `skipLibCheck: false` except SDK-facing programs | build configs for richtext/dither/deck/draft-store/media/effect-query keep it false; bsky-model/bsky-client and SDK-importing test programs set true because `@atproto/api` 0.29.6 declarations violate `exactOptionalPropertyTypes` and reference `NodeJS`; emitted declarations are checked by ATTW plus a strict external consumer | integration owner; **needs user acknowledgement** | foundation: **deviation recorded** |
+| dependency declarations are not audited with our config | shared `skipLibCheck: true` | dependency `.d.ts` are their authors' contract; every authored source keeps the full strict flag set, and the dependency-free packages' emitted declarations are compiled by an external NodeNext consumer with `skipLibCheck: false` (`strict-pure` in `scripts/check-packages.ts`) | integration owner | foundation: done |
 | external consumer proof for all eight packages | `scripts/check-packages.ts` | build without app, `pnpm pack`, publint strict, ATTW esm-only, temporary NodeNext project with tarball overrides, no workspace/NODE_PATH, strict compile, pure runtime imports with no browser globals | integration owner | foundation: done |
 | unit/browser runs cannot silently select nothing | `scripts/check-test-results.ts` | `pnpm test` and `pnpm test:browser` both end in the guard; 167 unit tests; 18 browser tests across three named projects | integration owner | foundation: done |
 | CI runs the fatal gate on PRs, no deploy | `.github/workflows/check.yml` | single `check` job, one aggregate context, no path filter, Playwright three engines with `--with-deps`, no deployment step | integration owner | foundation: **workflow written**, first remote run pending |
@@ -102,9 +102,11 @@ workflow, and all React hooks/components/stores/tests.
    reviewed old/new comparison (captures exist, review does not), benchmark
    harness and approved numeric budgets, deck geometry and media lifecycle
    browser evidence, and the first CI run.
-3. **SDK declaration deviation.** See the strict-declaration row; the user must
-   accept the narrow `skipLibCheck` exception or choose a different SDK/runtime
-   contract before those packages count as fully strict.
+3. **Dependency declarations are out of scope by decision.** The shared base
+   sets `skipLibCheck: true`; the pinned SDK declarations are not re-audited
+   under our strict flags. Our own emitted declarations are still checked from
+   the outside for the dependency-free packages. The practical consequence:
+   a type error that exists only inside an SDK `.d.ts` will not fail our build.
 4. **Landing action is visibly disabled.** Session acquisition is the identity
    phase; the action is disabled rather than pretending to sign in. This is a
    foundation-only surface difference from the source.

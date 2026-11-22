@@ -277,6 +277,117 @@ if (!checks.every(Boolean)) {
 console.log('pure consumer ok')
 `
 
+const STRICT_PURE: readonly string[] = [
+  '@benday-client/richtext',
+  '@benday-client/dither',
+  '@benday-client/deck',
+  '@benday-client/draft-store',
+]
+
+const STRICT_PURE_CONSUMER = `// SPDX-License-Identifier: GPL-3.0-only
+import { measureText, parseMarkdown, segmentText } from '@benday-client/richtext'
+import type { FacetSpan, TextSegment } from '@benday-client/richtext'
+import { buildBayerPatternSvg, createDitherFilter } from '@benday-client/dither'
+import type { SvgFilterNode } from '@benday-client/dither'
+import { chooseRestoreMode, clampIndex, createDeckMemory } from '@benday-client/deck'
+import type { DeckPosition } from '@benday-client/deck'
+import { createDraftStore } from '@benday-client/draft-store'
+import type { DraftRead } from '@benday-client/draft-store'
+
+const spans: readonly FacetSpan[] = parseMarkdown('x').facets
+const segments: readonly TextSegment[] = segmentText('x', spans)
+const measured: number = measureText('x').bytes
+const tree: readonly SvgFilterNode[] = createDitherFilter({
+  id: 'x',
+  dark: [[0, 0, 0], [1, 1, 1]],
+  light: [[0, 0, 0], [1, 1, 1]],
+}).filters
+const svg: string = buildBayerPatternSvg()
+const index: number = clampIndex(0, 0)
+const memory = createDeckMemory()
+const position: DeckPosition | undefined = memory.read('k')
+const mode: 'offset' | 'card' = chooseRestoreMode({
+  saved: { axis: 'y', index: 0, key: null, offset: null, anchor: null },
+  axis: 'x',
+  resolvedIndex: 0,
+  leadingPeek: false,
+  anchorDelta: null,
+  visibleRatio: 0,
+})
+const store = createDraftStore({
+  storage: { getItem: () => null, setItem: () => undefined },
+  storageKey: 'k',
+  maxEntries: 1,
+  now: () => 0,
+  newRevision: () => 'r',
+})
+const read: DraftRead = store.read('k')
+
+export const values = [segments, measured, tree, svg, index, position, mode, read]
+`
+
+/**
+ * Our own emitted declarations are checked from the outside with lib checking
+ * on. Only the dependency-free packages participate: an SDK or query library
+ * would drag its authors' declarations into a check we do not own.
+ */
+function checkStrictPureDeclarations(
+  packed: readonly Packed[],
+  work: string,
+): void {
+  const selected = packed.filter((artifact) => STRICT_PURE.includes(artifact.spec.name))
+  if (selected.length !== STRICT_PURE.length) fail('strict declaration consumer is missing a package')
+
+  const directory = join(work, 'strict-pure')
+  mkdirSync(directory)
+  const dependencies: Record<string, string> = {}
+  const overrides: Record<string, string> = {}
+  for (const artifact of selected) {
+    dependencies[artifact.spec.name] = `file:${artifact.tarball}`
+    overrides[artifact.spec.name] = `file:${artifact.tarball}`
+  }
+
+  writeFileSync(
+    join(directory, 'package.json'),
+    `${JSON.stringify({ name: 'benday-strict-pure', private: true, type: 'module', dependencies }, null, 2)}\n`,
+  )
+  writeFileSync(
+    join(directory, 'pnpm-workspace.yaml'),
+    `overrides:\n${Object.entries(overrides)
+      .map(([name, target]) => `  '${name}': ${target}`)
+      .join('\n')}\nignoreScripts: true\n`,
+  )
+  writeFileSync(
+    join(directory, 'tsconfig.json'),
+    `${JSON.stringify(
+      {
+        compilerOptions: {
+          target: 'ES2023',
+          lib: ['ES2024', 'DOM'],
+          module: 'NodeNext',
+          moduleResolution: 'NodeNext',
+          strict: true,
+          noUncheckedIndexedAccess: true,
+          exactOptionalPropertyTypes: true,
+          noImplicitOverride: true,
+          noFallthroughCasesInSwitch: true,
+          verbatimModuleSyntax: true,
+          skipLibCheck: false,
+          noEmit: true,
+          types: [],
+        },
+        include: ['pure.ts'],
+      },
+      null,
+      2,
+    )}\n`,
+  )
+  writeFileSync(join(directory, 'pure.ts'), STRICT_PURE_CONSUMER)
+
+  run('pnpm', ['install'], directory)
+  run('pnpm', ['exec', 'tsc', '-p', 'tsconfig.json'], directory)
+}
+
 async function main(): Promise<void> {
   run('pnpm', ['run', 'build:packages'], root)
 
@@ -363,8 +474,11 @@ async function main(): Promise<void> {
     )
     if (runtime.status !== 0) fail('pure consumer runtime import failed')
     if (!runtime.stdout.includes('pure consumer ok')) fail('pure consumer did not report success')
+
+    checkStrictPureDeclarations(packed, work)
+
     console.log(
-      `package proof ok: ${String(packed.length)} tarballs, publint strict, attw esm-only, strict NodeNext/Bundler consumer, pure imports green`,
+      `package proof ok: ${String(packed.length)} tarballs, publint strict, attw esm-only, strict consumers, pure imports green`,
     )
   } finally {
     rmSync(work, { recursive: true, force: true })

@@ -5,9 +5,7 @@
     "noEmit": true,
     "declaration": false,
     "declarationMap": false,
-    "sourceMap": false,
-    "types": ["node"],
-    "skipLibCheck": true
+    "sourceMap": false
   },
   "include": ["src/**/*.ts"]
 }

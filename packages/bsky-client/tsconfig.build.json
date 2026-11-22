@@ -3,12 +3,7 @@
   "compilerOptions": {
     "lib": ["ES2024", "DOM", "DOM.Iterable"],
     "rootDir": "src",
-    "outDir": "dist",
-    "types": ["node"],
-    // the pinned atproto SDK declarations do not satisfy
-    // exactOptionalPropertyTypes. Project sources keep every strict flag;
-    // emitted declarations are checked by the package consumer proof.
-    "skipLibCheck": true
+    "outDir": "dist"
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/*.test.ts"]

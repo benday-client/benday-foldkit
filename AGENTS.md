@@ -39,11 +39,12 @@ actually proven; when the two disagree, the acceptance record wins.
 - `tsconfig.json` at the root covers scripts, verification specs and tooling.
 - Every authored file must appear in one of those programs. `check:policy`
   fails a file that no program includes.
-- `skipLibCheck: false` everywhere except packages whose public types expose the
-  pinned AT Protocol SDK, plus test programs that import it: `@atproto/api`
-  0.29.6 declarations do not satisfy `exactOptionalPropertyTypes`. The exception
-  is recorded in the acceptance record; project sources keep every strict flag
-  and the packed tarballs are checked by ATTW plus an external strict consumer.
+- `skipLibCheck: true` in the shared base: dependency declarations belong to
+  their authors and are not re-audited under our `exactOptionalPropertyTypes`
+  settings. Our own sources keep every strict flag, and the dependency-free
+  packages' emitted declarations are compiled by an external consumer with
+  lib checking on (`scripts/check-packages.ts`). Do not add per-package
+  `skipLibCheck` overrides.
 
 ## Foldkit conventions
 

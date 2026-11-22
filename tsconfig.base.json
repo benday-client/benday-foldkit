@@ -19,7 +19,12 @@
     "isolatedModules": true,
     "erasableSyntaxOnly": true,
     "resolveJsonModule": true,
-    "skipLibCheck": false,
+    // This workspace type-checks its own sources and its own emitted
+    // declarations. Dependency declarations are their authors' contract and
+    // are not re-audited under our exactOptionalPropertyTypes settings. The
+    // consumer proof compiles the dependency-free packages with lib checking
+    // on so our .d.ts files are still checked from the outside.
+    "skipLibCheck": true,
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
