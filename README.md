@@ -23,7 +23,7 @@ pnpm dev
 
 - [development](docs/development.md): prerequisites, host notes, commands, gates
 - [libraries](docs/libraries.md): package boundaries, entry points, dependency contracts
-- [acceptance](https://github.com/benday-client/notes/blob/main/acceptance/foldkit.md): what is proven, with evidence and open limits
+- [acceptance](https://github.com/benday-client/notes/blob/main/foldkit/acceptance.md): what is proven, with evidence and open limits
 
 ## License
 

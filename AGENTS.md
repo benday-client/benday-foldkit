@@ -1,7 +1,7 @@
 # Working in this repository
 
 This file is the implementation guide. The acceptance record lives in
-[`benday-client/notes`](https://github.com/benday-client/notes/blob/main/acceptance/foldkit.md);
+[`benday-client/notes`](https://github.com/benday-client/notes/blob/main/foldkit/acceptance.md);
 when the two disagree, the acceptance record wins.
 
 ## Scope discipline
