@@ -1,0 +1,48 @@
+{
+  "name": "benday-foldkit-workspace",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "GPL-3.0-only",
+  "packageManager": "pnpm@12.16.1",
+  "engines": {
+    "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
+  },
+  "scripts": {
+    "build:packages": "pnpm --filter './packages/**' -r --workspace-concurrency=2 run build",
+    "build:app": "pnpm --filter @benday-client/benday run build",
+    "build": "pnpm run build:packages && pnpm run build:app",
+    "typecheck": "pnpm -r run typecheck && tsc -p tsconfig.json",
+    "lint": "effect-tsgo oxlint --type-aware --deny-warnings apps packages scripts verification playwright.config.ts vitest.config.ts",
+    "format": "oxfmt apps packages scripts verification playwright.config.ts vitest.config.ts",
+    "format:check": "oxfmt --check apps packages scripts verification playwright.config.ts vitest.config.ts",
+    "test": "vitest run && tsx scripts/check-test-results.ts vitest .verification/vitest-report.json",
+    "test:browser": "playwright test && tsx scripts/check-test-results.ts playwright .verification/playwright-report.json",
+    "check:policy": "tsx scripts/check-policy.ts",
+    "check:dev-privacy": "tsx scripts/check-dev-privacy.ts",
+    "test:policy": "tsx scripts/test-policy.ts",
+    "test:packages": "tsx scripts/check-packages.ts",
+    "capture:reference": "tsx scripts/capture-reference.ts",
+    "dev": "pnpm --filter @benday-client/benday run dev",
+    "check": "pnpm run build:packages && pnpm run typecheck && pnpm run lint && pnpm run check:policy && pnpm run check:dev-privacy && pnpm run test:policy && pnpm run test && pnpm run test:packages && pnpm run build:app && pnpm run test:browser"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "catalog:",
+    "@axe-core/playwright": "catalog:",
+    "@babel/parser": "catalog:",
+    "@effect/tsgo": "catalog:",
+    "@foldkit/oxlint-plugin": "catalog:",
+    "@playwright/test": "catalog:",
+    "@types/node": "catalog:",
+    "fast-check": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+    "playwright-core": "catalog:",
+    "publint": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

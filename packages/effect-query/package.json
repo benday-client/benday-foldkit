@@ -1,0 +1,29 @@
+{
+  "name": "@benday-client/effect-query",
+  "version": "0.1.0",
+  "private": true,
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "sideEffects": false,
+  "files": ["dist", "LICENSE"],
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "peerDependencies": {
+    "@tanstack/query-core": "5.105.0",
+    "effect": "~4.1.0"
+  },
+  "devDependencies": {
+    "@tanstack/query-core": "catalog:",
+    "effect": "catalog:",
+    "typescript": "catalog:"
+  }
+}

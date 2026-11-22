@@ -1,0 +1,36 @@
+{
+  "name": "@benday-client/bsky-model",
+  "version": "0.1.0",
+  "private": true,
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "sideEffects": false,
+  "files": ["dist", "LICENSE"],
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./interactions": {
+      "types": "./dist/interactions.d.ts",
+      "import": "./dist/interactions.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@benday-client/richtext": "workspace:*"
+  },
+  "peerDependencies": {
+    "@atproto/api": "0.29.6",
+    "effect": "~4.1.0"
+  },
+  "devDependencies": {
+    "@atproto/api": "catalog:",
+    "effect": "catalog:",
+    "typescript": "catalog:"
+  }
+}

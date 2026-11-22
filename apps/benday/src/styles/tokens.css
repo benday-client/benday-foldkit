@@ -1,0 +1,128 @@
+/* Benday's adaptation of doll.systems: near-black neutral surfaces, a single
+   violet signal, serif headings, sans reading text and monospace metadata.
+   Source: https://doll.systems/_astro/LinkGraph.CdnPADRq.css (2026-11-17).
+   Light mode and readable status/muted roles are Benday adaptations. */
+
+:root {
+  --font-mono:
+    "Departure Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  --font-reading:
+    "Instrument Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Instrument Serif", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+
+  /* type roles: one chrome size at 12/20, one reading size at 18/1.4, and the
+     64/36/24/18/12 spine the display steps sit on. the --step-* names below
+     stay as the compatibility ramp for selectors that still reference them. */
+  --text-chrome: 0.75rem;
+  --text-reading: 1.125rem;
+  --text-subtitle: 1.5rem;
+  --text-title: 2.25rem;
+  --text-headline: 4rem;
+  --leading-chrome: 20px;
+  --leading-reading: 1.4;
+  --leading-heading: 1.2;
+  --leading-display: 1.05;
+  --measure-reading: 40rem;
+
+  --step--2: 0.6875rem;
+  --step--1: 0.75rem;
+  --step-0: 0.8125rem;
+  --step-1: 1rem;
+  --step-2: 1.125rem;
+  --step-3: 1.75rem;
+  --step-4: 2.75rem;
+  --step-5: 4rem;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  --topbar-height: 80px;
+  --card-width: 100%;
+  --card-min-height: 320px;
+  --deck-gap: var(--space-5);
+  --page-gutter: max(2rem, (100vw - 83rem) / 2);
+
+  --motion-lift: 4px;
+  --motion-dur: 160ms;
+  --motion-ease: steps(4, end);
+  --dither-swap: 320ms;
+  --deal-dur: 320ms;
+
+  --z-base: 1;
+  --z-topbar: 20;
+  --z-dialog: 100;
+}
+
+/* the reference steps reading down to 15px at narrow widths while chrome
+   stays at 12px, so metadata keeps its scale against the text it labels. */
+@media (max-width: 600px) {
+  :root {
+    --text-reading: 0.9375rem;
+    --page-gutter: 1.5rem;
+  }
+}
+
+/* the two-row bar starts at the shell's 899px stack and measures
+   12 + 36 + 8 + 36 + 12 + 1 = 105px; the token carries that real box so no
+   consumer reserves the desktop 80px for it. */
+@media (max-width: 899px) {
+  :root {
+    --topbar-height: 105px;
+  }
+}
+
+/* Explicit scopes reset all colour roles, including scopes inside the other
+   scheme. The root fallback is dark until first-paint preference resolution. */
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --void: #090909;
+  --ink: #c4c4c4;
+  --ink-heading: #ededed;
+  --ink-dim: #a0a0a0;
+  --ink-faint: #828282;
+  --paper: #0c0c0c;
+  --panel: #101010;
+  --panel-raised: #191919;
+  --line: #353535;
+  --line-strong: #646464;
+  --accent: #c79fef;
+  --accent-hover: #ddc1f7;
+  --danger: #e9a6a6;
+  --shadow: #000000;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --void: #f4f2ef;
+  --ink: #2a2825;
+  --ink-heading: #171513;
+  --ink-dim: #5b5550;
+  --ink-faint: #69625c;
+  --paper: #faf9f7;
+  --panel: #eeece9;
+  --panel-raised: #e5e1dd;
+  --line: #c6c1ba;
+  --line-strong: #7d766e;
+  --accent: #70428c;
+  --accent-hover: #58316f;
+  --danger: #963f46;
+  --shadow: #d8d3cc;
+}
+
+:root,
+[data-theme] {
+  --accent-wash: color-mix(in srgb, var(--accent) 22%, var(--void));
+  --text-muted: var(--ink-dim);
+  --text-link: var(--accent);
+  --fill-solid: var(--accent);
+  --fill-solid-hover: var(--accent-hover);
+  --on-accent: var(--void);
+  --selection-ink: var(--void);
+}

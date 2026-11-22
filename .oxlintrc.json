@@ -1,0 +1,107 @@
+{
+  "plugins": ["typescript", "unicorn", "oxc", "import", "vitest", "promise"],
+  "jsPlugins": [{ "name": "foldkit", "specifier": "@foldkit/oxlint-plugin" }],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error"
+  },
+  "rules": {
+    "typescript/no-explicit-any": "error",
+    "typescript/no-non-null-assertion": "error",
+    "typescript/ban-ts-comment": "error",
+    "typescript/no-unsafe-type-assertion": "error",
+    "typescript/no-unsafe-assignment": "error",
+    "typescript/no-unsafe-argument": "error",
+    "typescript/no-unsafe-call": "error",
+    "typescript/no-unsafe-member-access": "error",
+    "typescript/no-unsafe-return": "error",
+    "typescript/switch-exhaustiveness-check": "error",
+    "vitest/no-disabled-tests": "error",
+    "vitest/no-focused-tests": "error",
+    "no-console": "error",
+    "no-var": "error",
+    "eqeqeq": "error",
+    "no-implicit-coercion": "error",
+    "no-eval": "error",
+    "no-implied-eval": "error",
+    "no-new-func": "off",
+    "no-underscore-dangle": ["error", { "allow": ["_tag"] }],
+    "import/no-unassigned-import": [
+      "error",
+      { "allow": ["**/*.css", "**/styles/appStyles.js"] }
+    ],
+    "foldkit/acquire-release-constructs-in-acquire-body": "error",
+    "foldkit/command-binding-matches-name": "error",
+    "foldkit/command-define-pascal-const": "error",
+    "foldkit/got-prefix-requires-submodel-payload": "error",
+    "foldkit/got-submodel-message-name": "error",
+    "foldkit/got-wrapper-carries-only-routing": "error",
+    "foldkit/keyed-required-for-mapped-rows": "error",
+    "foldkit/lazy-view-stable-references": "error",
+    "foldkit/mount-factory-must-use-element": "error",
+    "foldkit/no-array-index-view-keys": "error",
+    "foldkit/no-child-message-construction-in-root": "error",
+    "foldkit/no-direct-submodel-state-update": "error",
+    "foldkit/no-disabling-dev-guardrails": "error",
+    "foldkit/no-duplicate-onmount-per-element": "error",
+    "foldkit/no-empty-children-array": "error",
+    "foldkit/no-empty-commands-array": "error",
+    "foldkit/no-empty-to-parent-out-message": "error",
+    "foldkit/no-empty-object-tagged-call": "error",
+    "foldkit/no-hand-rolled-command-struct": "error",
+    "foldkit/no-hardcoded-route-strings": "error",
+    "foldkit/no-impure-call-at-decision-time": "error",
+    "foldkit/no-module-level-mutable-state": "error",
+    "foldkit/no-noop-message": "error",
+    "foldkit/no-prevent-default-in-stream-operator": "error",
+    "foldkit/no-raw-dom-event-attributes": "error",
+    "foldkit/no-route-query-constructor-default": "error",
+    "foldkit/no-spread-in-modify-fields": "error",
+    "foldkit/no-switch-on-message-tag": "error",
+    "foldkit/prefer-callable-message-constructor": "error",
+    "foldkit/prefer-command-mapmessage": "error",
+    "foldkit/prefer-effect-module-names": "error",
+    "foldkit/prefer-option-over-nullable-in-model": "error",
+    "foldkit/require-fold-for-child-update-result": "error",
+    "foldkit/require-rel-for-external-link": "error",
+    "foldkit/selection-submodel-factory-at-module-scope": "error",
+    "foldkit/wrap-child-output-in-got-message": "error"
+  },
+  "overrides": [
+    {
+      "files": ["packages/**/*.ts"],
+      "rules": {
+        "foldkit/no-hardcoded-route-strings": "off",
+        "foldkit/no-module-level-mutable-state": "off",
+        "foldkit/no-child-message-construction-in-root": "off",
+        "foldkit/prefer-option-over-nullable-in-model": "off"
+      }
+    },
+    {
+      "files": ["scripts/**/*.ts"],
+      "rules": {
+        // verification scripts report their observations on stdout
+        "no-console": "off",
+        // CLI tooling runs eagerly by design; the Effect deferral rule targets
+        // application update paths, not a one-shot verification script
+        "foldkit/no-impure-call-at-decision-time": "off"
+      }
+    },
+    {
+      "files": ["**/*.test.ts", "verification/**/*.ts", "scripts/**/*.ts"],
+      "rules": {
+        "foldkit/no-module-level-mutable-state": "off",
+        // a test-local helper that closes over describe-scope state is the
+        // readable form; hoisting it would widen state for no benefit
+        "unicorn/consistent-function-scoping": "off"
+      }
+    }
+  ],
+  "ignorePatterns": [
+    "node_modules/**",
+    "**/dist/**",
+    ".verification/**",
+    "test-results/**",
+    "playwright-report/**"
+  ]
+}

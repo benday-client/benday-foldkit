@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2024", "DOM"],
+    "rootDir": "src",
+    "outDir": "dist",
+    "types": ["node"],
+    // @atproto/api 0.29.6 declaration files do not satisfy
+    // exactOptionalPropertyTypes and use a NodeJS namespace. Project sources
+    // keep every strict flag; the emitted declarations are checked by the
+    // package consumer proof instead of by re-checking SDK declarations.
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.test.ts"]
+}

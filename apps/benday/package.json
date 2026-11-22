@@ -1,0 +1,40 @@
+{
+  "name": "@benday-client/benday",
+  "version": "0.1.0",
+  "private": true,
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "engines": {
+    "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@atproto/api": "catalog:",
+    "@atproto/oauth-client-browser": "catalog:",
+    "@benday-client/bsky-client": "workspace:*",
+    "@benday-client/bsky-model": "workspace:*",
+    "@benday-client/deck": "workspace:*",
+    "@benday-client/dither": "workspace:*",
+    "@benday-client/draft-store": "workspace:*",
+    "@benday-client/effect-query": "workspace:*",
+    "@benday-client/media": "workspace:*",
+    "@benday-client/richtext": "workspace:*",
+    "@effect/platform-browser": "catalog:",
+    "@fontsource/instrument-sans": "catalog:",
+    "@fontsource/instrument-serif": "catalog:",
+    "@tanstack/query-core": "catalog:",
+    "effect": "catalog:",
+    "foldkit": "catalog:",
+    "hls.js": "catalog:"
+  },
+  "devDependencies": {
+    "@foldkit/vite-plugin": "catalog:",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}

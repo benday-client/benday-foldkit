@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
+    "types": ["node"]
+  },
+  "include": [
+    "scripts/**/*.ts",
+    "verification/**/*.ts",
+    "playwright.config.ts",
+    "vitest.config.ts",
+    "apps/benday/vite.config.ts",
+    "apps/benday/vite/**/*.ts"
+  ]
+}

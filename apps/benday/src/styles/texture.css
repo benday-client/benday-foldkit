@@ -1,0 +1,84 @@
+/* CRT residue: the reference's chromatic fringe on type plus its fixed
+   scanline field, carried last so it changes texture only. Fringe and scan
+   values are copied from
+   https://doll.systems/_astro/LinkGraph.CdnPADRq.css (2026-11-17):
+   --display-pixel: 1px;
+   body { text-shadow: calc(-1px) 0 #ff787810, 1px 0 #84dfff14 }
+   h1..h6 { text-shadow: calc(-1px) 0 #ff787838, 1px 0 #84dfff3d }
+   .screen-lines { background: repeating-linear-gradient(to bottom,
+     #ffffff07 0 1px, #00000018 1px 2px) }
+
+   The 1px shift is fixed at every size: alpha, not offset, scales, so 12px
+   mono keeps a crisp edge and the 72px headline never smears. Light mode has
+   no reference counterpart; tints and the dark scanline row drop to a calm
+   fraction so paper stays paper. Nothing here animates, so there is no motion
+   to disable under prefers-reduced-motion and the static texture stays. */
+
+:root,
+[data-theme="dark"] {
+  --texture-fringe-shift: 1px;
+  --texture-fringe-body-warm: #ff787810;
+  --texture-fringe-body-cool: #84dfff14;
+  --texture-fringe-heading-warm: #ff787838;
+  --texture-fringe-heading-cool: #84dfff3d;
+  --texture-scanlight: #ffffff07;
+  --texture-scandark: #00000018;
+  --texture-scanstep: 1px;
+}
+
+[data-theme="light"] {
+  --texture-fringe-body-warm: #ff78780a;
+  --texture-fringe-body-cool: #84dfff0b;
+  --texture-fringe-heading-warm: #ff78781a;
+  --texture-fringe-heading-cool: #84dfff1c;
+  --texture-scanlight: #ffffff00;
+  --texture-scandark: #29272b08;
+}
+
+body {
+  text-shadow:
+    calc(-1 * var(--texture-fringe-shift)) 0 var(--texture-fringe-body-warm),
+    var(--texture-fringe-shift) 0 var(--texture-fringe-body-cool);
+}
+
+/* Chromium paints form controls with text-shadow: none, cutting inheritance
+   at a card that is itself a button. Put the fringe back on their text. */
+button,
+input,
+select,
+textarea {
+  text-shadow: inherit;
+}
+
+/* Every display face in the app, not just the heading tags, so the card and
+   dialog titles fringe together with the 72px gate headline. */
+h1,
+h2,
+h3,
+.b-card-back__feed,
+.b-post-card__name,
+.b-profile__name,
+.b-feed-card__name,
+.b-mode-card__title,
+.b-dialog__title,
+.b-empty__title,
+.b-search-card__name {
+  text-shadow:
+    calc(-1 * var(--texture-fringe-shift)) 0 var(--texture-fringe-heading-warm),
+    var(--texture-fringe-shift) 0 var(--texture-fringe-heading-cool);
+}
+
+/* Fixed, non-interactive scanlines. z-index 30 clears the app shell but stays
+   under the native dialog top layer, which paints above every z-index. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--texture-scanlight) 0 var(--texture-scanstep),
+    var(--texture-scandark) var(--texture-scanstep) calc(2 * var(--texture-scanstep))
+  );
+}
