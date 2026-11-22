@@ -87,11 +87,17 @@ workflow, and all React hooks/components/stores/tests.
 
 1. **Remote creation and protection are blocked.** No GitHub API credential or
    `gh` installation exists on this host; SSH authentication as
-   `lexa-delcourt` works but cannot create a repository or read protection
-   settings. `benday-client/benday-foldkit` therefore does not exist yet, the
-   bootstrap commit is local only, and PR-only protection, the required `check`
-   context and verified-signature readback are unproven. No unsigned or
-   direct-to-`main` content commit was made.
+   `lexa-delcourt` works, but `git ls-remote` on the authorized URL answers
+   `Repository not found`, and no API path can create the repository or read
+   protection settings. `benday-client/benday-foldkit` therefore does not exist
+   yet, and PR-only protection, the required `check` context and
+   verified-signature readback are unproven.
+   Local placement: this workspace policy refuses branch switches in a shared
+   checkout, so the foundation slice is commit `d3e8c94` on the local `main`
+   above the empty bootstrap `8051aca`. Nothing was pushed. When the remote
+   exists, the intended sequence is: push `8051aca` as remote `main`, push
+   `d3e8c94` to `refs/heads/foundation/workspace`, and open the pull request
+   from that branch, so remote `main` never receives a direct content commit.
 2. **Foundation gate is not fully met.** Missing: remote/protection evidence,
    reviewed old/new comparison (captures exist, review does not), benchmark
    harness and approved numeric budgets, deck geometry and media lifecycle
