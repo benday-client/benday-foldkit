@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 import { Schema } from 'effect'
 
-/** Which anonymous shell the current URL asks for. */
+/** The URL the shell renders, as parsed from the last URL fact. */
 export const ShellModel = Schema.Struct({
   pathname: Schema.String,
+  search: Schema.String,
 })
 
 export type ShellModel = typeof ShellModel.Type

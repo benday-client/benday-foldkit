@@ -106,6 +106,16 @@ describe('chooseRestoreMode', () => {
   it('uses card geometry when the saved card drifted out of view', () => {
     expect(chooseRestoreMode(restoreInput({ anchorDelta: 1.5, visibleRatio: 0.5 }))).toBe('card')
     expect(chooseRestoreMode(restoreInput({ anchorDelta: 2, visibleRatio: 0.899 }))).toBe('card')
+    expect(chooseRestoreMode(restoreInput({ anchorDelta: -2, visibleRatio: 0.5 }))).toBe('card')
+    expect(chooseRestoreMode(restoreInput({ anchorDelta: -40, visibleRatio: 0.5 }))).toBe('card')
+  })
+
+  it('rejects a non-finite saved offset and index', () => {
+    expect(
+      chooseRestoreMode(restoreInput({ anchorDelta: 0, saved: position({ offset: Number.NaN }) })),
+    ).toBe('card')
+    expect(clampIndex(Number.NaN, 5)).toBe(0)
+    expect(clampIndex(Number.POSITIVE_INFINITY, 5)).toBe(0)
   })
 
   it('uses card geometry for unknown offsets or anchors', () => {

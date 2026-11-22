@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /**
- * Fatal policy guard for the authored tree.
+ * Policy guard for the authored tree.
  *
- * It covers what the type checker and the linter cannot state by themselves:
- * every authored file is inside a real tsconfig program, every file carries
- * its license header, no file hides a diagnostic or lint suppression, and no
- * authored ambient declaration widens the type system. `--scan <dir>` runs the
- * same content rules against a fixture tree for the policy test.
+ * Enforces tsconfig coverage, SPDX headers on code files outside the
+ * declaration allowlist, no diagnostic or lint suppressions, no ambient
+ * declarations, and that every test file sits under a runner's include
+ * patterns. `--scan <dir>` runs the content rules against a fixture tree.
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { dirname, join, relative, resolve } from 'node:path'
@@ -56,6 +55,12 @@ function walk(directory: string): string[] {
   return entries
 }
 
+const CODE_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx', '.js', '.mjs', '.cjs', '.jsx'] as const
+
+function isCodeFile(path: string): boolean {
+  return CODE_EXTENSIONS.some((extension) => path.endsWith(extension))
+}
+
 function authoredFiles(): SourceFile[] {
   const roots = [
     ...readdirSync(join(root, 'packages')).map((name) => join(root, 'packages', name, 'src')),
@@ -68,13 +73,36 @@ function authoredFiles(): SourceFile[] {
   const files: SourceFile[] = []
   for (const directory of roots) {
     for (const path of walk(directory)) {
-      if (path.endsWith('.ts') || path.endsWith('.js')) {
+      if (isCodeFile(path)) {
         files.push({ path, relative: relative(root, path) })
       }
     }
   }
   for (const path of single) files.push({ path, relative: relative(root, path) })
   return files.toSorted((left, right) => left.relative.localeCompare(right.relative))
+}
+
+/** A test file outside the runner's include patterns never executes. */
+function checkTestPlacement(files: readonly SourceFile[]): string[] {
+  const problems: string[] = []
+  for (const file of files) {
+    const path = file.relative
+    const isUnitTest = path.endsWith('.test.ts')
+    const isBrowserSpec = path.endsWith('.spec.ts')
+    if (isUnitTest) {
+      const covered =
+        (path.startsWith('packages/') && path.includes('/src/')) ||
+        path.startsWith('apps/benday/src/')
+      if (!covered) problems.push(`${path}: unit test outside the vitest include patterns`)
+    }
+    if (isBrowserSpec && !path.startsWith('verification/browser/')) {
+      problems.push(`${path}: browser spec outside playwright's testDir`)
+    }
+    if (path.startsWith('verification/') && !isBrowserSpec) {
+      problems.push(`${path}: verification file is not a browser spec`)
+    }
+  }
+  return problems
 }
 
 function isTestFile(relativePath: string): boolean {
@@ -88,10 +116,7 @@ function checkContent(file: SourceFile): string[] {
   if (file.relative.endsWith('.d.ts') && !DECLARATION_ALLOWLIST.has(file.relative)) {
     problems.push(`${file.relative}: authored declaration files are not allowed`)
   }
-  if (file.relative.endsWith('.js') && !text.startsWith(SPDX)) {
-    problems.push(`${file.relative}: missing ${SPDX}`)
-  }
-  if (file.relative.endsWith('.ts') && !file.relative.endsWith('.d.ts') && !text.startsWith(SPDX)) {
+  if (isCodeFile(file.relative) && !file.relative.endsWith('.d.ts') && !text.startsWith(SPDX)) {
     problems.push(`${file.relative}: missing ${SPDX}`)
   }
 
@@ -181,6 +206,7 @@ function main(): void {
 
   const files = authoredFiles()
   const problems = files.flatMap(checkContent)
+  problems.push(...checkTestPlacement(files))
   problems.push(...checkCoverage(files))
   if (problems.length > 0) {
     throw new Error(`policy check rejected ${String(problems.length)} problem(s)\n${problems.join('\n')}`)

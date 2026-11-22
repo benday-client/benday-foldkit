@@ -28,7 +28,7 @@ export interface DeckSelection {
 export interface DeckPosition {
   readonly axis: DeckAxis
   readonly index: number
-  /** The focused card's key; an index alone drifts when items shift. */
+  /** The focused card's key. */
   readonly key: string | null
   readonly offset: number | null
   readonly anchor: number | null
@@ -58,7 +58,7 @@ export interface RestoreInput {
  * Clamp an index into `[0, length - 1]`; an empty deck has exactly one slot, 0.
  */
 export function clampIndex(index: number, length: number): number {
-  if (length <= 0) return 0
+  if (length <= 0 || !Number.isFinite(index)) return 0
   return Math.min(Math.max(index, 0), length - 1)
 }
 
@@ -95,6 +95,7 @@ export function chooseRestoreMode(input: RestoreInput): 'offset' | 'card' {
   if (saved.axis !== axis) return 'card'
   if (axis === 'x') return 'card'
   if (saved.offset === null || anchorDelta === null) return 'card'
+  if (!Number.isFinite(saved.offset)) return 'card'
   if (resolvedIndex !== saved.index) return 'card'
   // an unmeasurable anchor is not evidence that the card stayed put
   if (!Number.isFinite(anchorDelta)) return 'card'

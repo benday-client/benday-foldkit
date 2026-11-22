@@ -24,7 +24,6 @@
     "no-implicit-coercion": "error",
     "no-eval": "error",
     "no-implied-eval": "error",
-    "no-new-func": "off",
     "no-underscore-dangle": ["error", { "allow": ["_tag"] }],
     "import/no-unassigned-import": [
       "error",
@@ -80,10 +79,9 @@
     {
       "files": ["scripts/**/*.ts"],
       "rules": {
-        // verification scripts report their observations on stdout
+        // verification scripts print their observations to stdout
         "no-console": "off",
-        // CLI tooling runs eagerly by design; the Effect deferral rule targets
-        // application update paths, not a one-shot verification script
+        // the Effect deferral rule covers application update paths
         "foldkit/no-impure-call-at-decision-time": "off"
       }
     },
@@ -91,8 +89,7 @@
       "files": ["**/*.test.ts", "verification/**/*.ts", "scripts/**/*.ts"],
       "rules": {
         "foldkit/no-module-level-mutable-state": "off",
-        // a test-local helper that closes over describe-scope state is the
-        // readable form; hoisting it would widen state for no benefit
+        // test-local helpers may close over describe-scope state
         "unicorn/consistent-function-scoping": "off"
       }
     }

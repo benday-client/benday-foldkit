@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /**
- * The static-hosting OAuth metadata document. The rewrite keeps Benday's
- * single-origin client identity: the client id is the bare HTTPS origin, and
- * one callback serves password and portal sign-in.
+ * Emits the static client metadata. `client_id` is the metadata document URL,
+ * `client_uri` the HTTPS origin, and the single OAuth redirect is
+ * `${origin}/feed`.
  */
 export const OAUTH_SCOPE = 'atproto transition:generic'
 export const OAUTH_REDIRECT_PATH = '/feed'

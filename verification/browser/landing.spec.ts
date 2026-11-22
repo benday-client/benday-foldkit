@@ -44,6 +44,16 @@ test.describe('anonymous landing', () => {
     await expect(page).toHaveURL(/\/$/)
   })
 
+  test('keeps fragment focus and history on a query route', async ({ page }) => {
+    await page.goto('/feed?x=1')
+    const before = await page.evaluate(() => history.length)
+    await page.keyboard.press('Tab')
+    await page.keyboard.press('Enter')
+    await expect(page.locator('#main')).toBeFocused()
+    await expect(page).toHaveURL('/feed?x=1')
+    expect(await page.evaluate(() => history.length)).toBe(before)
+  })
+
   test('decides the stored scheme before the app bundle runs', async ({ page }) => {
     await page.goto('/')
     await page.evaluate(() => {

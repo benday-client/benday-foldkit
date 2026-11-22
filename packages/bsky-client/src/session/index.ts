@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /**
  * Type-only contract for browser password and OAuth session ownership.
- *
  * The implementation phase supplies `makeSessionService`; until then this
- * module deliberately exports no constructor, so nothing can claim a session
- * exists before the storage, callback and disposal rules are reviewed.
+ * module exports no constructor.
  */
 import type { Effect, Redacted, Scope, Stream } from 'effect'
 import type { Agent, AtpAgent } from '@atproto/api'

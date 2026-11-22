@@ -70,9 +70,8 @@ export const ActorSuggestion = Schema.Struct({
 export type ActorSuggestion = typeof ActorSuggestion.Type
 
 /**
- * The neutral richtext feature shape, mirrored as a schema so mapped values can
- * be checked without depending on the SDK's wire types. The public
- * `FacetFeature`/`FacetSpan` types come from `@benday-client/richtext`.
+ * Neutral richtext feature shape. The public `FacetFeature`/`FacetSpan` types
+ * come from `@benday-client/richtext`.
  */
 export const FacetFeatureSchema = Schema.Union([
   Schema.Struct({
@@ -767,8 +766,7 @@ export function postAuthorDids(post: PostModel): readonly string[] {
 
 /**
  * Every author in the raw thread tree, including nested quote and reply-context
- * authors. The focus post's own author is included too, but flattenThread keeps
- * the deliberately opened focus post regardless.
+ * authors and the focus post's own author.
  */
 export function threadAuthorDids(thread: AppBskyFeedDefs.ThreadViewPost): readonly string[] {
   const dids = new Set<string>()

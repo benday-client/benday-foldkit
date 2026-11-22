@@ -43,6 +43,29 @@ describe('reduceMedia', () => {
     expect(reduceMedia(retried, { _tag: 'Ready' })).toEqual(ready(false, 12, 30))
   })
 
+  it('keeps the loading phase when play fires before the source is ready', () => {
+    const loading: MediaState = { _tag: 'Loading', playing: false, current: 4, duration: 20 }
+    expect(reduceMedia(loading, { _tag: 'Playing' })).toEqual({
+      _tag: 'Loading',
+      playing: true,
+      current: 4,
+      duration: 20,
+    })
+  })
+
+  it('keeps a failure or unsupported tag on late playback facts', () => {
+    const failed: MediaState = { _tag: 'LoadFailed', playing: false, current: 4, duration: 20 }
+    expect(reduceMedia(failed, { _tag: 'Playing' })).toEqual({
+      _tag: 'LoadFailed',
+      playing: true,
+      current: 4,
+      duration: 20,
+    })
+    expect(reduceMedia(failed, { _tag: 'Ended' })._tag).toBe('LoadFailed')
+    const unsupported: MediaState = { _tag: 'Unsupported', playing: false, current: 0, duration: 0 }
+    expect(reduceMedia(unsupported, { _tag: 'Playing' })._tag).toBe('Unsupported')
+  })
+
   it('keeps a failure while a late position fact arrives', () => {
     const failed: MediaState = { _tag: 'LoadFailed', playing: false, current: 12, duration: 30 }
     expect(reduceMedia(failed, { _tag: 'PositionChanged', current: 13, duration: 30 })).toEqual({

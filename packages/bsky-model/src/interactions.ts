@@ -23,8 +23,6 @@ export interface ActionEntry {
 export interface ViewerState {
   readonly likeUri: string | null
   readonly repostUri: string | null
-  readonly likeCount: number
-  readonly repostCount: number
 }
 
 export type ActionEntries = Readonly<Record<string, ActionEntry>>
@@ -128,7 +126,6 @@ export function applyViewerRead(
 ): ActionEntries {
   let next: Record<string, ActionEntry> | null = null
   for (const [uri, viewer] of states) {
-    // only the entry object that started the read may consume its result
     if (current[uri] !== captured[uri]) continue
     const base = current[uri] ?? EMPTY_ENTRY
     const patch: Partial<ActionEntry> = {

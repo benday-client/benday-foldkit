@@ -5,9 +5,8 @@ import type { Message } from './message.js'
 import type { Model } from './model.js'
 
 /**
- * The anonymous front door. A signed-out visitor reads what benday is before
- * any credential field exists, and the invitation copy stays the product
- * contract rather than a temporary placeholder.
+ * The signed-out landing: label, headline, invitation copy, and a login action
+ * disabled until the session service exists.
  */
 function landing(h: HtmlBuilder<Message>) {
   return h.section(

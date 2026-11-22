@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /**
- * Proves that the configured gates reject the prohibited classes they claim
- * to cover. Each known-bad fixture runs through the real command, and positive
- * controls prove the same commands accept an honest file.
+ * Runs each known-bad fixture through the real command and a clean fixture
+ * through the same command as a positive control.
  */
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'

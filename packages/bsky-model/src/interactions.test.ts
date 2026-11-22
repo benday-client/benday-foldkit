@@ -38,8 +38,6 @@ function viewer(overrides: Partial<ViewerState> = {}): ViewerState {
   return {
     likeUri: null,
     repostUri: null,
-    likeCount: 0,
-    repostCount: 0,
     ...overrides,
   }
 }

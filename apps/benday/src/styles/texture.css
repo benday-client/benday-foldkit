@@ -10,9 +10,8 @@
 
    The 1px shift is fixed at every size: alpha, not offset, scales, so 12px
    mono keeps a crisp edge and the 72px headline never smears. Light mode has
-   no reference counterpart; tints and the dark scanline row drop to a calm
-   fraction so paper stays paper. Nothing here animates, so there is no motion
-   to disable under prefers-reduced-motion and the static texture stays. */
+   no reference counterpart: it lowers the tint alpha and drops the dark
+   scanline row. Nothing here animates, so no reduced-motion query is needed. */
 
 :root,
 [data-theme="dark"] {

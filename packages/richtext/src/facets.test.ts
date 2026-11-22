@@ -30,6 +30,12 @@ describe('segmentText', () => {
     expect(segments[1]?.features).toHaveLength(1)
   })
 
+  it('counts a lone surrogate as three bytes', () => {
+    const segments = segmentText('a\uD800b', [link(1, 4, 'https://example.com')])
+    expect(segments.map((segment) => segment.text)).toEqual(['a', '\uD800', 'b'])
+    expect(segments[1]?.features).toHaveLength(1)
+  })
+
   it('keeps the text when a span is malformed', () => {
     const facets = [
       { start: 4, end: 2, feature: { kind: 'bold' } } as FacetSpan,
@@ -60,6 +66,9 @@ describe('safeHttpUrl', () => {
 
   it('rejects non-http schemes, empty hosts and malformed input', () => {
     expect(safeHttpUrl('javascript:alert(1)')).toBeNull()
+    expect(safeHttpUrl('ftp://example.com/file')).toBeNull()
+    expect(safeHttpUrl('data:text/plain,hi')).toBeNull()
+    expect(safeHttpUrl('file:///etc/passwd')).toBeNull()
     expect(safeHttpUrl('at://did:plc:x/app.bsky.feed.post/1')).toBeNull()
     expect(safeHttpUrl('https://')).toBeNull()
     expect(safeHttpUrl('not a url')).toBeNull()

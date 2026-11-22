@@ -8,8 +8,7 @@ export interface ParsedMarkdown {
 
 // A labelled link is the only markup the composer interprets: the label becomes
 // the literal text and the destination becomes one link facet. Every other
-// marker — emphasis delimiters, backticks, bare urls and hashtags — stays
-// literal text, so what the editor sends is exactly what the reader typed.
+// marker stays literal text.
 const LINK = /\[(?<label>[^\]]+)\]\((?<url>https?:\/\/[^\s()]*(?:\([^\s()]*\)[^\s()]*)*)\)/gu
 
 const encoder = new TextEncoder()

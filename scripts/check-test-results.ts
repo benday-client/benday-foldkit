@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /**
  * Reads a Vitest or Playwright JSON report and refuses a run that did not
- * actually execute the tests it claims to cover: zero selected tests, skipped
- * or pending cases, focused-only selection and a browser run missing one of
- * its three engines all fail here even when the runner's own exit code is 0.
+ * execute its declared tests: zero selected cases, any skipped, pending, todo
+ * or failed case, a failed test file, or a browser report missing an engine or
+ * a passing case in one. Focused selection is rejected by the runner config.
  */
 import { readFileSync } from 'node:fs'
 
@@ -50,7 +50,10 @@ function checkVitest(path: string): void {
   const failed = numberField(raw, 'numFailedTests')
   const pending = numberField(raw, 'numPendingTests')
   const todo = numberField(raw, 'numTodoTests')
+  const failedSuites = numberField(raw, 'numFailedTestSuites')
 
+  if (raw['success'] !== true) fail('vitest did not report a successful run')
+  if (failedSuites !== 0) fail(`vitest reported ${String(failedSuites)} failed test files`)
   if (total === 0) fail('vitest executed zero tests')
   if (failed !== 0) fail(`vitest reported ${String(failed)} failed tests`)
   if (pending !== 0) fail(`vitest reported ${String(pending)} skipped tests`)

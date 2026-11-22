@@ -35,9 +35,9 @@ Oracle source: `benday-client/benday` at
 | deck browser geometry/settle helpers use `data-deck-index` and complete cleanup | DOM-scoped helpers | `deck/src/browser.ts` typechecked; no browser measurement yet | library owner; closure pending | foundation: **partial** — geometry not measured in a real browser |
 | effect-query owns one native QueryClient and native observers | lifecycle tests | `effect-query/src/index.test.ts`: shared in-flight request, stop publishing after scope close, unmount-before-clear, `removed` emits native hash | library owner | foundation: done |
 | bsky-model schemas and mappers keep source fields, moderation and degradation | schema decode + mapper tests | `bsky-model/src/model.test.ts` incl. embeds, facets, hidden pruning, 80-entry thread cap, notification labels | library owner | foundation: done |
-| interaction reconciliation: 45 s freshness, read-start identity, copy-on-write | pure tests | `bsky-model/src/interactions.test.ts` | library owner | foundation: done |
+| interaction reconciliation: read-start identity, copy-on-write, write confirmation | pure tests | `bsky-model/src/interactions.test.ts` covers 44_999/45_000 ms write-confirmation, identical-entry read consumption, stale-read rejection, identity preservation and count retirement. Canonical read freshness (`sideStale`/`needsViewerRead`) is app-owned; the package exports `VIEWER_STALE_TIME` for it | library owner | foundation: done |
 | bsky-client/session ship a reviewed contract only, no fake runtime | type-only modules, no constructors | `packages/bsky-client/src/{index,session}.ts`; package builds to empty JS; consumer compiles against the types | integration owner | foundation: contract only; runtime implementation is gated to identity |
-| media playback facts keep counters across retry and end as Ready/not playing | reducer tests | `media/src/index.test.ts` | library owner; closure pending | foundation: **partial** — element/HLS lifecycle has no browser or synthetic-media evidence yet |
+| media playback facts keep counters and phase across retry and failure | reducer tests | `media/src/index.test.ts`: Playing keeps Loading/LoadFailed/Unsupported and only sets `playing`; Ended keeps the tag; counters survive retry; ended is Ready with playback stopped | library owner; closure pending | foundation: **partial** — element/HLS lifecycle still has no browser or synthetic-media evidence |
 
 ## Application foundation
 
@@ -47,16 +47,16 @@ Oracle source: `benday-client/benday` at
 | landing copy, classes and skip target match the source | source `LandingView.tsx`, `layout.css` | same spec asserts exact copy, `.b-landing`, `a.b-skip` → focused `main#main` without a history entry | integration owner | foundation: done |
 | first paint decides the stored scheme before the app bundle runs | inline bootstrap generated from one module source | build inlines `firstPaint.js`; browser test aborts the module asset and still observes `data-theme=light` and `theme-color #f4f2ef`; unit probe runs the inlined script against stub globals | integration owner | foundation: done |
 | OAuth metadata and deep-link shell contract | Vite emitter + hosting file | browser test fetches `/oauth-client-metadata.json` (`client_id`, scope `atproto transition:generic`, redirect `https://benday.qex.at/feed`) and `/feed?x=1` returns the shell | integration owner | foundation: done |
-| build identity describes the tested tree | `build-identity.json` emitted with source SHA, dirty flag and hashed files | `scripts/serve-dist.ts` throws when identity ≠ HEAD/dirty; browser test reads the served document | integration owner | foundation: done |
-| development privacy: no preservation branch, relay or recording transport | config + probe | `scripts/check-dev-privacy.ts` cold-start optimization probe: zero `import.meta.hot`/`hot.data` in HTML, entry and optimized Foldkit body, no injected dev client, no WS URL, no DevTools relay; production bundle contains zero `import.meta.hot` | integration owner | foundation: done |
+| build identity describes the tested tree | `build-identity.json` carries `sourceSha` and a `sourceTree` hash over the tracked diff and untracked non-ignored files; a checkout without git fails the build | `scripts/serve-dist.ts` recomputes both and refuses a mismatch; two consecutive builds of one tree emit a byte-identical identity document | integration owner | foundation: done |
+| development privacy: no preservation branch, relay or websocket | config + probe | Vite's injected client is replaced by a stub served from `configureServer` (style injection kept, no transport); the probe scans the HTML, every app module and every `optimizeDeps` entry, loads the page in Chromium and sees zero websockets, no `/devtools`/`/mcp`/`/__dev` request, a styled body, and no relay line; the child runs in its own process group and is killed whole; production bundle contains zero `import.meta.hot` | integration owner | foundation: done |
 | DevTools off and no credential recording | `devTools: false`, plugin is `foldkitViewIdentity()` only | entry config; optimizer/bundle inspection above | integration owner | foundation: done |
 | landing visual baseline from the frozen oracle | `scripts/capture-reference.ts` pinned to the SHA | 6 captures (3 engines × desktop 1280×800 / mobile 390×844): surface `landing`, heading 64px / 36px, `.b-landing` present; manifest records browser versions and geometry | integration owner | foundation: **captured**, comparison review pending |
 | numeric performance budgets and paired benchmark | none yet | no budget was approved; the surfaces that need measuring do not exist yet | user decision required | foundation: **blocked** — benchmark harness not implemented, budgets unapproved |
-| policy: suppressions, `any`, assertions, focused/skipped, ambient declarations, authored `.d.ts` | `check:policy` + Oxlint + report reader | `test:policy` green on 15 fixtures: 4 policy classes rejected, clean accepted; any/cast/non-null/focused rejected, clean accepted; focused/skipped/empty vitest rejected, clean accepted; browser report missing engines rejected | integration owner | foundation: done |
-| every authored file inside a real tsconfig program | `check:policy` listFilesOnly coverage | 49 authored files covered by root/app/package programs | integration owner | foundation: done |
+| policy: suppressions, `any`, assertions, focused/skipped, ambient declarations, authored `.d.ts`, misplaced tests | `check:policy` + Oxlint + report reader | 54 authored files across `.ts/.mts/.cts/.tsx/.js/.mjs/.cjs/.jsx`; ambient AST classes, suppression tokens, SPDX, declaration allowlist, tsconfig coverage and runner include placement enforced; `test:policy` green on 15 fixtures; the vitest reader now requires `success` and zero failed test files | integration owner | foundation: done |
+| every authored file inside a real tsconfig program | `check:policy` listFilesOnly coverage | 54 authored files covered by root/app/package programs | integration owner | foundation: done |
 | dependency declarations are not audited with our config | shared `skipLibCheck: true` | dependency `.d.ts` are their authors' contract; every authored source keeps the full strict flag set, and the dependency-free packages' emitted declarations are compiled by an external NodeNext consumer with `skipLibCheck: false` (`strict-pure` in `scripts/check-packages.ts`) | integration owner | foundation: done |
-| external consumer proof for all eight packages | `scripts/check-packages.ts` | build without app, `pnpm pack`, publint strict, ATTW esm-only, temporary NodeNext project with tarball overrides, no workspace/NODE_PATH, strict compile, pure runtime imports with no browser globals | integration owner | foundation: done |
-| unit/browser runs cannot silently select nothing | `scripts/check-test-results.ts` | `pnpm test` and `pnpm test:browser` both end in the guard; 167 unit tests; 18 browser tests across three named projects | integration owner | foundation: done |
+| external consumer proof for all eight packages | `scripts/check-packages.ts` | build without app, `pnpm pack`, publint strict, ATTW esm-only, temporary NodeNext project with tarball overrides, no workspace/NODE_PATH, strict compile, pure runtime imports with no browser globals; a second consumer compiles the four dependency-free packages with `skipLibCheck: false` | integration owner | foundation: done |
+| unit/browser runs cannot silently select nothing | `scripts/check-test-results.ts` | `pnpm test` and `pnpm test:browser` both end in the guard; 171 unit tests; 21 browser tests across three named projects, including fragment focus on a query route | integration owner | foundation: done |
 | CI runs the fatal gate on PRs, no deploy | `.github/workflows/check.yml` | single `check` job, one aggregate context, no path filter, Playwright three engines with `--with-deps`, no deployment step | integration owner | foundation: **workflow written**, first remote run pending |
 
 ## Reuse provenance
@@ -83,6 +83,26 @@ Files deliberately **not** copied: `base.css`, `layout.css`, `components.css`,
 (independently written; `base`, `layout` and `landing` exist as a foundation
 subset), `dither.css`, `theme-effects.css` (reading phase), the publish
 workflow, and all React hooks/components/stores/tests.
+
+## Adversarial review dispositions (2026-11-22 night)
+
+Three defect reviewers (kernels, protocol, app/gates) and three prose reviewers ran against this tree. Fixed before merge:
+
+- skip link: fragment focus now works on query routes, ids are percent-decoded, and a same-page `#` no longer pushes a history entry, with a browser test on `/feed?x=1`
+- dev privacy: Vite's injected client is replaced by a local stub, the probe observes zero websockets and a styled body, scans every app module and optimizer entry, starts only on a free port, and kills the whole process group
+- build identity: bound to `sourceTree` (tracked diff plus untracked content), fails closed without git, recomputed and compared before serving
+- first paint: a denied `localStorage` global no longer aborts the inline decoder
+- reports: vitest `success` and failed test files are fatal; test files outside the runner include patterns fail policy; `.mts/.cts/.tsx/.jsx/.mjs/.cjs` are scanned; `new Function` is banned
+- media: `Playing`/`Ended` keep the Loading/LoadFailed/Unsupported tag, play cannot resolve true after release
+- deck: snapport is a padded viewport span, non-finite index/offset are rejected, negative drift has a test
+- protocol: `ViewerState` is the source's two-URI shape; effect-query destroys an observer whose acquisition throws
+- prose: headers that overclaimed a check and metaphor comments were replaced with the mechanism
+
+Still open from review: real-browser media lifecycle and deck geometry evidence; dither matrix/filter values are not pinned by tests; the policy fixture for a browser report missing an engine can pass on a missing report; the capture server does not bind the served dist to the source SHA; the package proof does not yet reject an undeclared direct dependency.
+
+## Decision: keep the pinned AT Protocol SDK
+
+`@atcute/*` was evaluated at the user's request. Evidence: every package is 0BSD, ESM-only and plain async with no Effect bindings; it covers XRPC, lexicons, OAuth browser sessions and password sessions, but not feed/thread/profile/notification mapping, viewer-state hydration, labeler configuration, moderation application or typed-text facet detection. Its OAuth browser client stores sessions and the DPoP private JWK in localStorage under `atcute-oauth:*`, with no migration from the oracle's IndexedDB database `@atproto-oauth-client`; adopting it would force every existing session through re-authentication and break the continuity anchor. The pinned `@atproto/api 0.29.6` and `@atproto/oauth-client-browser 0.5.11` stay.
 
 ## Open blockers and limits
 

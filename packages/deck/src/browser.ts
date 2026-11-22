@@ -37,15 +37,21 @@ function scrollPadding(style: CSSStyleDeclaration, axis: DeckAxis): ScrollPaddin
 }
 
 /**
- * The scroller's own visible span on `axis`, in content coordinates: the scroll
- * offset at its start and the client extent it covers. Scroll padding is applied
- * by the geometry helpers that need a snapport.
+ * The scroller's visible span on `axis`, in viewport coordinates, with its
+ * scroll padding removed from the start and the extent.
  */
 export function readSnapport(
   scroller: HTMLElement,
   axis: DeckAxis,
 ): { readonly start: number; readonly extent: number } {
-  return { start: offsetOf(scroller, axis), extent: extentOf(scroller, axis) }
+  const rect = scroller.getBoundingClientRect()
+  const padding = scrollPadding(getComputedStyle(scroller), axis)
+  const viewportStart = axis === 'x' ? rect.left : rect.top
+  const extent = extentOf(scroller, axis) - padding.start - padding.end
+  return {
+    start: viewportStart + padding.start,
+    extent: extent > 0 ? extent : 0,
+  }
 }
 
 /** The card's position in the scroller's content coordinates on `axis`. */

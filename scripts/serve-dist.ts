@@ -3,6 +3,7 @@ import { spawn, spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { readSourceIdentity } from '../apps/benday/vite/sourceIdentity.js'
 
 const root = dirname(fileURLToPath(new URL('../package.json', import.meta.url)))
 const appRoot = join(root, 'apps', 'benday')
@@ -14,16 +15,11 @@ function run(command: string, args: readonly string[], cwd: string): void {
   }
 }
 
-function git(args: readonly string[]): string {
-  const result = spawnSync('git', args, { cwd: root, encoding: 'utf8' })
-  return result.status === 0 ? result.stdout.trim() : 'unknown'
-}
-
 run('pnpm', ['--filter', '@benday-client/benday', 'run', 'build'], root)
 
 interface BuildIdentity {
   readonly sourceSha: string
-  readonly dirty: boolean
+  readonly sourceTree: string
 }
 
 function isBuildIdentity(value: unknown): value is BuildIdentity {
@@ -32,8 +28,8 @@ function isBuildIdentity(value: unknown): value is BuildIdentity {
     value !== null &&
     'sourceSha' in value &&
     typeof value.sourceSha === 'string' &&
-    'dirty' in value &&
-    typeof value.dirty === 'boolean'
+    'sourceTree' in value &&
+    typeof value.sourceTree === 'string'
   )
 }
 
@@ -42,13 +38,14 @@ const rawIdentity: unknown = JSON.parse(readFileSync(identityPath, 'utf8'))
 if (!isBuildIdentity(rawIdentity)) {
   throw new Error(`build identity at ${identityPath} is not a build identity document`)
 }
-const identity = rawIdentity
 
-const head = git(['rev-parse', 'HEAD'])
-const dirty = git(['status', '--porcelain']).length > 0
-if (identity.sourceSha !== head || identity.dirty !== dirty) {
+const current = readSourceIdentity(appRoot)
+if (
+  rawIdentity.sourceSha !== current.sourceSha ||
+  rawIdentity.sourceTree !== current.sourceTree
+) {
   throw new Error(
-    `build identity ${identity.sourceSha}${identity.dirty ? '+dirty' : ''} does not describe ${head}${dirty ? '+dirty' : ''}`,
+    `build identity ${rawIdentity.sourceSha}/${rawIdentity.sourceTree.slice(0, 12)} does not describe ${current.sourceSha}/${current.sourceTree.slice(0, 12)}`,
   )
 }
 

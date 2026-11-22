@@ -21,8 +21,8 @@ export default defineConfig({
   ],
   use: {
     baseURL: 'http://127.0.0.1:4173',
-    // the old-app baseline captures run with an explicit dark scheme; the
-    // system-following default would make every landing assertion paint-light
+    // the app's first paint follows the system scheme; pin dark so landing
+    // assertions are deterministic
     colorScheme: 'dark',
     trace: 'off',
   },

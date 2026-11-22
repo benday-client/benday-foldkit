@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /**
- * The one import order for the application cascade. Faces load before tokens,
- * structural rules before surfaces, and the static texture last so it only
- * changes texture.
+ * Cascade order: faces, tokens, base, layout, landing, texture. Texture stays
+ * last so it changes texture without overriding the surfaces above it.
  */
 import '@fontsource/instrument-serif/400.css'
 import '@fontsource/instrument-serif/400-italic.css'

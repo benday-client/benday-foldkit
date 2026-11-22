@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /**
- * Turn the first-paint module into a classic inline script. The module's
- * declarations are reused verbatim and only the `export` keywords are dropped,
- * so the pre-paint decoder cannot drift from the one the app imports.
+ * Renders the first-paint module as a classic inline script by dropping the
+ * `export` keywords and appending the call.
  */
 const EXPORT_PREFIX = /^export\s+/gm
 

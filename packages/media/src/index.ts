@@ -2,11 +2,8 @@
 import { Match } from 'effect'
 
 /**
- * Framework-free playback facts for one video element.
- *
- * The states mirror the source player's phase/error split without carrying
- * React state or DOM handles. Counters live on every state that can be
- * playing, so a retry or a load failure never resets the displayed clock.
+ * Every playable state keeps the last known counters, so a retry or a load
+ * failure never resets the clock.
  */
 
 type PlaybackCounters = {
@@ -16,10 +13,9 @@ type PlaybackCounters = {
 }
 
 /**
- * `Unavailable` means the post exposes no playlist at all, `Poster` means the
- * reader has not activated playback yet, and the remaining states are the
- * activated attempt's phase plus the last known playback counters. Ended
- * playback is `Ready` with `playing: false`.
+ * `Unavailable` means the post exposes no playlist at all; `Poster` means
+ * playback has not been activated. Ended playback is `Ready` with
+ * `playing: false`, and a late playback fact never clears a failure tag.
  */
 export type MediaState =
   | { readonly _tag: 'Unavailable' }
@@ -50,10 +46,10 @@ function countersOf(state: MediaState): PlaybackCounters {
 /**
  * Fold one media fact into the player state.
  *
- * A read before activation (`Poster`) never invents a load failure: the
- * browser adapter filters native errors until a source is attached. `Ready`
- * also accepts a retry from `LoadFailed`/`Unsupported` and keeps the counters
- * from before the failure, matching the source player's retained clock.
+ * A `LoadFailed` fact before activation (`Poster`) is ignored: the browser
+ * adapter filters native errors until a source is attached. `Ready` also
+ * accepts a retry from `LoadFailed`/`Unsupported` and keeps the counters from
+ * before the failure.
  */
 export function reduceMedia(state: MediaState, event: MediaEvent): MediaState {
   if (state._tag === 'Unavailable') return state
@@ -63,11 +59,11 @@ export function reduceMedia(state: MediaState, event: MediaEvent): MediaState {
   return Match.value(event).pipe(
     Match.withReturnType<MediaState>(),
     Match.tag('Ready', () => ({ _tag: 'Ready', ...counters })),
-    Match.tag('Playing', () => ({ _tag: 'Ready', ...counters, playing: true })),
-    Match.tag('Paused', () => (state._tag === 'Poster' ? state : { ...state, playing: false })),
-    Match.tag('Ended', () =>
-      state._tag === 'Poster' ? state : { _tag: 'Ready', ...counters, playing: false },
+    Match.tag('Playing', () =>
+      state._tag === 'Poster' ? state : { ...state, playing: true },
     ),
+    Match.tag('Paused', () => (state._tag === 'Poster' ? state : { ...state, playing: false })),
+    Match.tag('Ended', () => (state._tag === 'Poster' ? state : { ...state, playing: false })),
     Match.tag('PositionChanged', ({ current, duration }) =>
       state._tag === 'Poster'
         ? state

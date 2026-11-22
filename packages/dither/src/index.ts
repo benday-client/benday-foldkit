@@ -84,7 +84,7 @@ function toBase64Ascii(input: string): string {
   return output
 }
 
-/** Inline data URI for the pattern tile, safe to reference from an SVG filter. */
+/** Base64 data URI for the pattern tile; the filter needs no network fetch. */
 export function buildBayerPatternDataUri(): string {
   return `data:image/svg+xml;base64,${toBase64Ascii(buildBayerPatternSvg())}`
 }
@@ -170,12 +170,12 @@ export type SvgFilterNode =
       readonly children: readonly []
     }
 
-/** The complete filter graph for one colour-scheme variant. */
+/** The dark and light filter graphs. */
 export interface DitherFilterSpec {
   readonly filters: readonly SvgFilterNode[]
 }
 
-// The grungy Bayer screen stays monochrome; violet belongs to interaction.
+// the Bayer screen is monochrome; colour comes only from the caller's ramps
 const GRUNGE_SEED = 17
 const GRUNGE_FREQUENCY = 0.9
 

@@ -19,11 +19,10 @@ import { Effect, Queue, Stream, type Scope } from 'effect'
  * A scoped owner of one native TanStack `QueryClient`.
  *
  * The client is mounted on acquisition and unmounted plus cleared when the
- * surrounding scope closes. Every observer stream owns exactly one native
- * observer and releases it when its own stream scope ends.
+ * surrounding scope closes. Every observer stream owns one native observer and
+ * releases it when its own stream scope ends.
  */
 export interface QueryCache {
-  /** The single native client owned by this service value. */
   readonly client: QueryClient
   /** Native query hashes of entries removed from the client's query cache. */
   readonly removed: Stream.Stream<string>
@@ -81,19 +80,24 @@ const observeNativeQuery = <
           TQueryData,
           TQueryKey
         >(client, options)
-        let notified = false
-        const unsubscribe = observer.subscribe((result) => {
-          notified = true
-          Queue.offerUnsafe(queue, result)
-        })
-        // `subscribe` starts the initial fetch or computes the current result
-        // when no fetch is required. Publish the current result exactly once
-        // even when the subscription itself did not notify synchronously.
-        observer.updateResult()
-        if (!notified) {
-          Queue.offerUnsafe(queue, observer.getCurrentResult())
+        try {
+          let notified = false
+          const unsubscribe = observer.subscribe((result) => {
+            notified = true
+            Queue.offerUnsafe(queue, result)
+          })
+          // `subscribe` starts the initial fetch or computes the current result
+          // when no fetch is required. Publish the current result exactly once
+          // even when the subscription itself did not notify synchronously.
+          observer.updateResult()
+          if (!notified) {
+            Queue.offerUnsafe(queue, observer.getCurrentResult())
+          }
+          return { observer, unsubscribe }
+        } catch (error) {
+          observer.destroy()
+          throw error
         }
-        return { observer, unsubscribe }
       }),
       ({ observer, unsubscribe }) =>
         Effect.sync(() => {
@@ -123,16 +127,21 @@ const observeNativeInfiniteQuery = <
           TQueryKey,
           TPageParam
         >(client, options)
-        let notified = false
-        const unsubscribe = observer.subscribe((result) => {
-          notified = true
-          Queue.offerUnsafe(queue, result)
-        })
-        observer.updateResult()
-        if (!notified) {
-          Queue.offerUnsafe(queue, observer.getCurrentResult())
+        try {
+          let notified = false
+          const unsubscribe = observer.subscribe((result) => {
+            notified = true
+            Queue.offerUnsafe(queue, result)
+          })
+          observer.updateResult()
+          if (!notified) {
+            Queue.offerUnsafe(queue, observer.getCurrentResult())
+          }
+          return { observer, unsubscribe }
+        } catch (error) {
+          observer.destroy()
+          throw error
         }
-        return { observer, unsubscribe }
       }),
       ({ observer, unsubscribe }) =>
         Effect.sync(() => {
@@ -142,12 +151,6 @@ const observeNativeInfiniteQuery = <
     ),
   )
 
-/**
- * Acquires one native query client and its query-removal stream.
- *
- * Releasing the scope unmounts the client and clears its caches; observer
- * streams always release their own observers when their stream scope ends.
- */
 export const makeQueryCache = (
   config: QueryClientConfig,
 ): Effect.Effect<QueryCache, never, Scope.Scope> =>

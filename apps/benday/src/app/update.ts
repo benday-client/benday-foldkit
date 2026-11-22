@@ -37,9 +37,9 @@ const FocusElement = Command.define('FocusElement', {
     }).pipe(Effect.as(Message.CompletedFocus())),
 })
 
-const withPathname = (model: Model, pathname: string): Model => ({
+const withUrl = (model: Model, pathname: string, search: string): Model => ({
   ...model,
-  shell: { ...model.shell, pathname },
+  shell: { pathname, search },
 })
 
 /**
@@ -54,29 +54,49 @@ export const routing: RoutingConfig<Message> = {
 
 export const init = (url: Url): Update.Return<Model, Message> => ({
   model: {
-    shell: { pathname: url.pathname },
+    shell: {
+      pathname: url.pathname,
+      search: url.search._tag === 'Some' ? url.search.value : '',
+    },
     auth: { status: 'anonymous' },
     overlay: { open: null },
   },
 })
 
+/** A fragment id is percent-decoded so `#post%201` reaches `id="post 1"`. */
+function focusTarget(fragment: string): string {
+  try {
+    return decodeURIComponent(fragment)
+  } catch {
+    return fragment
+  }
+}
+
 export const update = (model: Model, message: Message) =>
   Message.match<Update.Return<Model, Message>>(message, {
-    ChangedUrl: ({ url }) => ({ model: withPathname(model, url.pathname) }),
-    // a same-origin link is a push; an external one keeps the source's
-    // new-browsing-context behaviour, and an in-page anchor only moves focus
+    ChangedUrl: ({ url }) => ({
+      model: withUrl(
+        model,
+        url.pathname,
+        url.search._tag === 'Some' ? url.search.value : '',
+      ),
+    }),
     RequestedUrl: ({ request }) => {
       if (request._tag === 'External') {
         return { model, commands: [OpenUrl({ href: request.href })] }
       }
       const { url } = request
-      if (
-        url.hash._tag === 'Some' &&
-        url.pathname === model.shell.pathname &&
-        url.search._tag === 'None'
-      ) {
-        return { model, commands: [FocusElement({ id: url.hash.value })] }
+      const pathname = model.shell.pathname
+      const search = model.shell.search
+      const nextSearch = url.search._tag === 'Some' ? url.search.value : ''
+      const samePage = url.pathname === pathname && nextSearch === search
+
+      // an in-page fragment only moves focus; the URL and history are untouched
+      if (url.hash._tag === 'Some' && url.pathname === pathname) {
+        return { model, commands: [FocusElement({ id: focusTarget(url.hash.value) })] }
       }
+      // same page, no fragment: nothing to navigate, and no history entry
+      if (url.hash._tag === 'None' && samePage) return { model }
       return { model, commands: [PushUrl({ href: urlToString(url) })] }
     },
     CompletedNavigation: () => ({ model }),

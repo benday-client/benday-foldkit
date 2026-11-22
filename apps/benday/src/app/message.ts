@@ -5,8 +5,8 @@ import { UrlRequest } from 'foldkit/navigation'
 import { Url } from 'foldkit/url'
 
 /**
- * Messages are facts. A URL fact carries the parsed URL, never a DOM node or a
- * routing handle, so the whole update path stays serializable.
+ * URL messages carry the parsed URL; no DOM node or routing handle crosses the
+ * update boundary.
  */
 export const Message = defineMessageUnion({
   ChangedUrl: { url: Url },

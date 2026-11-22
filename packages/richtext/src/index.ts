@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
-export { firstGrapheme, measureText, truncateGraphemes, utf8Length } from './graphemes.js'
+export { firstGrapheme, measureText, truncateGraphemes } from './graphemes.js'
 export type { TextSegment } from './facets.js'
 export { safeHttpUrl, segmentText } from './facets.js'
 export type { FacetFeature, FacetSpan } from './features.js'

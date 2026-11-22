@@ -10,7 +10,7 @@
 import { createServer } from 'node:http'
 import { spawnSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { extname, join, normalize, resolve } from 'node:path'
+import { extname, join, normalize, resolve, sep } from 'node:path'
 import { chromium, firefox, webkit, type BrowserType } from 'playwright-core'
 
 const PINNED_SOURCE_SHA = '237e98b3f2e46e3843eece22ab2429ae0cb0708c'
@@ -56,9 +56,9 @@ const MIME: Readonly<Record<string, string>> = {
 const server = createServer((request, response) => {
   const url = new URL(request.url ?? '/', 'http://127.0.0.1')
   const requested = normalize(join(dist, decodeURIComponent(url.pathname)))
-  const file = requested.startsWith(dist) && existsSync(requested) && !requested.endsWith('/')
-    ? requested
-    : join(dist, 'index.html')
+  const inside = requested.startsWith(dist + sep)
+  const file =
+    inside && existsSync(requested) && !requested.endsWith('/') ? requested : join(dist, 'index.html')
   try {
     const body = readFileSync(file)
     response.writeHead(200, { 'content-type': MIME[extname(file)] ?? 'application/octet-stream' })
@@ -155,7 +155,6 @@ try {
 
   const manifest = {
     sourceSha: PINNED_SOURCE_SHA,
-    referenceDir: reference,
     capturedAt: new Date().toISOString(),
     profiles: PROFILES,
     captures,

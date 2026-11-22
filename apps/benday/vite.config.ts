@@ -1,19 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
-import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { foldkitViewIdentity } from '@foldkit/vite-plugin'
 import { defineConfig, loadEnv, type Plugin } from 'vite'
 import { renderFirstPaintScript } from './vite/firstPaintScript.js'
 import { createOAuthClientMetadata } from './vite/oauthMetadata.js'
+import { readSourceIdentity } from './vite/sourceIdentity.js'
 
-function git(args: readonly string[]): string {
-  try {
-    return execFileSync('git', args, { encoding: 'utf8' }).trim()
-  } catch {
-    return 'unknown'
-  }
-}
+const appRoot = fileURLToPath(new URL('.', import.meta.url))
 
 const FIRST_PAINT_MARKER = '<!--benday:first-paint-->'
 const firstPaintSource = readFileSync(
@@ -49,8 +43,7 @@ const buildIdentity = (publicOrigin: string): Plugin => ({
   name: 'benday-build-identity',
   generateBundle(_options, bundle) {
     const identity = {
-      sourceSha: git(['rev-parse', 'HEAD']),
-      dirty: git(['status', '--porcelain']).length > 0,
+      ...readSourceIdentity(appRoot),
       publicOrigin,
       files: Object.keys(bundle).toSorted(),
     }
@@ -77,12 +70,76 @@ const inlineFirstPaint = (): Plugin => ({
   },
 })
 
+/**
+ * Vite injects its HMR client into the page and into every CSS module. The
+ * client opens a websocket, so development replaces it with a local stub that
+ * style injection needs and that has no transport. A full reload is the
+ * development loop.
+ */
+const DEV_CLIENT_STUB = `
+const noop = () => {}
+export const createHotContext = () => ({
+  data: {},
+  accept: noop,
+  acceptExports: noop,
+  dispose: noop,
+  prune: noop,
+  decline: noop,
+  invalidate: noop,
+  on: noop,
+  off: noop,
+  send: noop,
+})
+export function updateStyle(id, content) {
+  let element = document.querySelector('style[data-benday-dev-id="' + id + '"]')
+  if (element === null) {
+    element = document.createElement('style')
+    element.setAttribute('data-benday-dev-id', id)
+    document.head.appendChild(element)
+  }
+  element.textContent = content
+}
+export function removeStyle(id) {
+  const element = document.querySelector('style[data-benday-dev-id="' + id + '"]')
+  if (element !== null) element.remove()
+}
+export const injectQuery = (url) => url
+`
+const noDevClient = (): Plugin => ({
+  name: 'benday-no-dev-client',
+  apply: 'serve',
+  configureServer(server) {
+    server.middlewares.use((request, response, next) => {
+      const url = request.url ?? ''
+      if (url !== '/@vite/client' && !url.startsWith('/@vite/client?')) {
+        next()
+        return
+      }
+      response.statusCode = 200
+      response.setHeader('content-type', 'text/javascript; charset=utf-8')
+      response.end(DEV_CLIENT_STUB)
+    })
+  },
+  transformIndexHtml: {
+    order: 'post',
+    handler(html) {
+      return html.replace('<script type="module" src="/@vite/client"></script>', '')
+    },
+  },
+})
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', 'BENDAY_')
   const publicOrigin = env['BENDAY_PUBLIC_ORIGIN'] ?? 'https://benday.qex.at'
 
   return {
-    plugins: [foldkitViewIdentity(), inlineFirstPaint(), oauthMetadata(publicOrigin), buildIdentity(publicOrigin)],
+    plugins: [
+      foldkitViewIdentity(),
+      inlineFirstPaint(),
+      noDevClient(),
+      oauthMetadata(publicOrigin),
+      buildIdentity(publicOrigin),
+    ],
     // A production bundle must not carry a live hot-update branch.
     define: {
       'import.meta.hot': 'undefined',

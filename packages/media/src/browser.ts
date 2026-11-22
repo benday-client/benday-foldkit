@@ -230,6 +230,7 @@ export function attachVideo(
       )
 
       if (!outcome.ok) {
+        if (released) return false
         let refused = false
         if (typeof DOMException !== 'undefined' && outcome.reason instanceof DOMException) {
           refused =
@@ -249,6 +250,7 @@ export function attachVideo(
         )
       }
 
+      if (released) return false
       return true
     })
 

@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /**
- * The first-paint theme decision. This file is both a runtime module and the
- * single source the build inlines into index.html, so the stored envelope is
- * decoded one way before paint and one way after it.
+ * The first-paint theme decision. The build inlines this file's declarations
+ * into index.html; the test executes the same source.
  */
 
 const SETTINGS_KEY = 'benday:settings'
@@ -65,13 +64,13 @@ export function readStoredEnvelope(raw) {
 }
 
 /**
- * @param {Pick<Storage, 'getItem'>} storage
+ * @param {Pick<Storage, 'getItem'> | null} storage
  * @returns {{ appearance: 'light' | 'dark' | 'system' }}
  */
 export function readSettings(storage) {
   let raw = null
   try {
-    raw = storage.getItem(SETTINGS_KEY)
+    raw = storage === null ? null : storage.getItem(SETTINGS_KEY)
   } catch {
     raw = null
   }
@@ -80,7 +79,15 @@ export function readSettings(storage) {
 
 /** Apply the stored appearance to the document before the app starts. */
 export function applyFirstPaint() {
-  const settings = readSettings(localStorage)
+  // accessing the global itself throws in browsers that deny site storage
+  /** @type {Pick<Storage, 'getItem'> | null} */
+  let storage = null
+  try {
+    storage = localStorage
+  } catch {
+    storage = null
+  }
+  const settings = readSettings(storage)
   const theme = themeForAppearance(settings.appearance, systemPrefersLight())
   document.documentElement.dataset['theme'] = theme
   const meta = document.querySelector('meta[name="theme-color"]')

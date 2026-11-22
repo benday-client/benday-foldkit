@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 /**
- * Type-only contract for the AT Protocol read/write adapter.
- *
- * This module ships the shapes the rest of the workspace compiles against
- * before the implementation phase authorizes network code. It exports no
- * runtime function and performs no I/O, so importing it cannot pretend an
- * operation happened.
+ * Type-only contract for the AT Protocol read/write adapter. It exports no
+ * runtime function and performs no I/O.
  */
 import type { Effect } from 'effect'
 import type { Agent, AtpAgent } from '@atproto/api'

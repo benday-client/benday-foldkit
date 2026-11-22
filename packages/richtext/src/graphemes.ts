@@ -36,8 +36,3 @@ export function measureText(text: string): { readonly graphemes: number; readonl
   const graphemes = [...segmenter.segment(text)].length
   return { graphemes, bytes: encoder.encode(text).length }
 }
-
-/** UTF-8 byte width of `text`, reusing the shared encoder. */
-export function utf8Length(text: string): number {
-  return encoder.encode(text).length
-}

@@ -113,7 +113,7 @@ export function createDraftStore(options: DraftStoreOptions): DraftStore {
 
     const record = drafts[key]
     if (record === undefined) return { text: '', revision: null, available: true }
-    // a legacy entry has no revision; null is the honest snapshot of that
+    // a legacy entry has no revision; null reports that
     return { text: record.text, revision: record.revision ?? null, available: true }
   }
 

@@ -218,7 +218,7 @@ const nearest: number | null = nearestCardIndex(document.createElement('div'), '
 const port = readSnapport(document.createElement('div'), 'x')
 const stop: () => void = watchDeckRest(document.createElement('div'), 'y', () => undefined)
 
-const state: MediaState = reduceMedia({ _tag: 'Poster' }, { _tag: 'Playing' })
+const state: MediaState = reduceMedia({ _tag: 'Poster' }, { _tag: 'Ready' })
 const time: string = formatMediaTime(12.5)
 const handle: VideoHandle | null = null
 
@@ -266,7 +266,7 @@ const checks = [
     now: () => 0,
     newRevision: () => 'r',
   }).read('k').available === true,
-  reduceMedia({ _tag: 'Poster' }, { _tag: 'Playing' })._tag === 'Ready',
+  reduceMedia({ _tag: 'Ready', playing: false, current: 0, duration: 0 }, { _tag: 'Playing' })._tag === 'Ready',
   formatMediaTime(-1) === '0:00',
   mapAuthor({ $type: 'app.bsky.actor.defs#profileViewBasic', did: 'did:plc:x', handle: 'x' }).did === 'did:plc:x',
 ]

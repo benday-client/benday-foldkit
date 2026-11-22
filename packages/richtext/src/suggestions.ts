@@ -32,9 +32,9 @@ export function suggestionAt(text: string, cursor: number): SuggestionToken | nu
 }
 
 /**
- * Replacement for an accepted suggestion. The text around the token survives
- * byte for byte: at the end of the text one space follows the handle, and a
- * caret that already sits before whitespace or punctuation keeps its place.
+ * Replacement for an accepted suggestion. The text around the token is
+ * unchanged; at the end of the text one space follows the handle, and a caret
+ * already before whitespace or punctuation keeps its place.
  */
 export function insertSuggestion(
   text: string,
