@@ -1,0 +1,79 @@
+/* SPDX-License-Identifier: GPL-3.0-only */
+/* The signed-out landing: label, one display line, one paragraph, one action,
+   in the same reading measure as every other surface. */
+
+.b-landing {
+  display: grid;
+  align-content: center;
+  justify-content: center;
+  grid-template-columns: minmax(0, 40rem);
+  gap: var(--space-5);
+  padding: var(--space-8) var(--page-gutter);
+}
+
+.b-landing__headline {
+  margin: 0;
+  max-width: 28ch;
+  color: var(--ink-heading);
+  font-family: var(--font-display);
+  font-size: var(--text-headline);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: var(--leading-display);
+}
+
+.b-landing__body {
+  margin: 0;
+  max-width: 34rem;
+  color: var(--ink);
+  font-family: var(--font-reading);
+  font-size: var(--text-reading);
+  line-height: var(--leading-reading);
+}
+
+.b-landing__action {
+  display: flex;
+  gap: var(--space-3);
+}
+
+/* button base, until the shared component sheet lands in the reading phase */
+.b-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 36px;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  letter-spacing: normal;
+  line-height: var(--leading-chrome);
+  text-transform: lowercase;
+}
+
+.b-button--solid {
+  border-color: var(--fill-solid);
+  background: var(--fill-solid);
+  color: var(--on-accent);
+}
+
+.b-button:disabled {
+  border-color: var(--line);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .b-landing {
+    padding: var(--space-7) var(--page-gutter);
+  }
+
+  .b-landing__headline {
+    font-size: var(--text-title);
+  }
+}

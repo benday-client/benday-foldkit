@@ -1,0 +1,9 @@
+/* Departure Mono ships outside fontsource, so the face is vendored beside its
+   license. SIL Open Font License 1.1, copyright 2022-2024 Helena Zhang. */
+@font-face {
+  font-family: "Departure Mono";
+  src: url("../assets/fonts/DepartureMono-Regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}

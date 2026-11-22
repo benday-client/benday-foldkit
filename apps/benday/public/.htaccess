@@ -1,0 +1,36 @@
+# Static hosting contract for the benday origin. Existing files are served as
+# they are; every other path falls back to the single-page shell, which keeps
+# deep links and query strings intact. Only /admin asks for a password, and the
+# credential file lives outside every document root.
+#
+# __HOME__ is replaced at publish time with the account home.
+
+DirectoryIndex index.html
+AddType application/json .json
+
+<Files "oauth-client-metadata.json">
+  Require all granted
+</Files>
+
+<FilesMatch "^\.ht">
+  Require all denied
+</FilesMatch>
+
+# <Location> is not permitted in .htaccess, so the path is matched directly.
+<If "%{REQUEST_URI} =~ m#^/admin(/|$)#">
+  AuthType Basic
+  AuthName "benday admin"
+  AuthUserFile __HOME__/.benday-htpasswd
+  Require valid-user
+</If>
+
+RewriteEngine On
+RewriteBase /
+
+# dotfile requests are refused outright instead of receiving the app shell.
+RewriteCond %{REQUEST_URI} (^|/)\.[^/]*$
+RewriteRule ^ - [F]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ /index.html [L]
