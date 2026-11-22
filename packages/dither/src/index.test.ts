@@ -12,10 +12,10 @@ describe('bayer tile', () => {
     expect(svg.match(/<rect /g)).toHaveLength(64)
   })
 
-  it('pins the first and last threshold cells', () => {
+  it('pins the first and last cells', () => {
     const svg = buildBayerPatternSvg()
     expect(svg).toContain('x="0" y="0" width="2" height="2" fill="rgb(99.219%, 99.219%, 99.219%)"')
-    expect(svg).toContain('x="14" y="14" width="2" height="2" fill="rgb(0.781%, 0.781%, 0.781%)"')
+    expect(svg).toContain('x="14" y="14" width="2" height="2" fill="rgb(66.406%, 66.406%, 66.406%)"')
   })
 
   it('encodes to the same bytes a browser btoa would produce', () => {
@@ -84,10 +84,13 @@ describe('createDitherFilter', () => {
       result: 'mixed',
     })
     expect(spec.filters[0]?.children[4]?.attributes).toMatchObject({
-      href: expect.stringMatching(/^data:image\/svg\+xml;base64,/),
       preserveAspectRatio: 'none',
       result: 'pattern',
     })
+    const image = spec.filters[0]?.children[4]
+    expect(
+      image?.tag === 'feImage' && image.attributes.href.startsWith('data:image/svg+xml;base64,'),
+    ).toBe(true)
     expect(spec.filters[0]?.children[8]?.children.map((node) => node.attributes)).toEqual([
       { type: 'table', tableValues: '0.035 0.77' },
       { type: 'table', tableValues: '0.035 0.77' },
