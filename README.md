@@ -63,6 +63,10 @@ instead. Chromium and Firefox run unmodified.
 `pnpm test:browser` rebuilds first and refuses to serve when
 `dist/build-identity.json` does not describe the checked-out tree.
 
+CI runs the full fatal gate (`pnpm check`) on the pull-request tree. Locally,
+run `pnpm check:static` (everything except the unit and browser suites) before
+pushing; the test suites stay authoritative in CI.
+
 ## Library use
 
 Libraries are ESM-only, unbundled, and connect through `exports` maps that put

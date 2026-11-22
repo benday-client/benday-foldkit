@@ -15,6 +15,7 @@ function run(command: string, args: readonly string[], cwd: string): void {
   }
 }
 
+run('pnpm', ['run', 'build:packages'], root)
 run('pnpm', ['--filter', '@benday-client/benday', 'run', 'build'], root)
 
 interface BuildIdentity {

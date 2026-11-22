@@ -24,6 +24,7 @@
     "test:packages": "tsx scripts/check-packages.ts",
     "capture:reference": "tsx scripts/capture-reference.ts",
     "dev": "pnpm --filter @benday-client/benday run dev",
+    "check:static": "pnpm run build:packages && pnpm run typecheck && pnpm run lint && pnpm run check:policy && pnpm run check:dev-privacy && pnpm run test:policy && pnpm run test:packages && pnpm run build:app",
     "check": "pnpm run build:packages && pnpm run typecheck && pnpm run lint && pnpm run check:policy && pnpm run check:dev-privacy && pnpm run test:policy && pnpm run test && pnpm run test:packages && pnpm run build:app && pnpm run test:browser"
   },
   "devDependencies": {

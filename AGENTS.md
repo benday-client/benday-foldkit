@@ -67,6 +67,8 @@ integration owner runs them.
 
 - `pnpm test -- <files>` still runs through the report reader.
 - `pnpm test:browser -- <spec>` runs all three engine projects.
+- CI runs the full fatal gate (`pnpm check`); run `pnpm check:static` locally
+  (everything except the unit and browser suites).
 - New behaviour lands with the test that would fail without it.
 - `pnpm test:policy` is the proof that the gates themselves reject the
   prohibited classes; keep its positive controls green.
