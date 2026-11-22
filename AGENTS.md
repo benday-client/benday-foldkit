@@ -75,9 +75,18 @@ integration owner runs them.
 - `pnpm test:policy` is the proof that the gates themselves reject the
   prohibited classes; keep its positive controls green.
 
+## Pull requests
+
+- Every pull request needs an approving review from `qexat` before it merges.
+- Keep a pull request semantically atomic: it must squash into one commit
+  without losing useful information. Extra commits on the branch are for fixes
+  and CI failures, never for unrelated changes.
+- `main` merges by squash. The pull request title and body become the commit,
+  so write them as the change.
+
 ## Git
 
 - Commits are signed SSH commits as `lexa <me@lexa.qex.at>`.
 - `main` is protected: pull requests only, no force pushes, no deletion, one
-  aggregate `check` context.
+  aggregate `check` context, a required review and a squash merge.
 - Use the selective commit namespace so other work in the tree is not captured.
