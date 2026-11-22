@@ -1,7 +1,8 @@
 # Working in this repository
 
-This file is the implementation guide. `docs/acceptance.md` records what is
-actually proven; when the two disagree, the acceptance record wins.
+This file is the implementation guide. The acceptance record lives in
+[`benday-client/notes`](https://github.com/benday-client/notes/blob/main/acceptance/foldkit.md);
+when the two disagree, the acceptance record wins.
 
 ## Scope discipline
 
@@ -11,7 +12,8 @@ actually proven; when the two disagree, the acceptance record wins.
 - The React repository `benday-client/benday` is read-only. Do not install,
   generate or format inside it.
 - Reuse only the artifacts listed in the approved reuse table, and record the
-  source path, source SHA, target path and proof in `docs/acceptance.md` first.
+  source path, source SHA, target path and proof in the notes' acceptance
+  record first.
 
 ## Authored files
 
