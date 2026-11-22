@@ -12,7 +12,7 @@ Oracle source: `benday-client/benday` at
 | requirement and oracle | enforcement | evidence | owner and closure | gate and status |
 |---|---|---|---|---|
 | one fully empty signed root commit on `main` | no files, signed commit | tree lists no paths; commit `6c9fe89`; GitHub reports `verified=true reason=valid` for ED25519 `SHA256:+iUOnFOmcLGD9YbPscOWfqgzXdgFGAmODrRtAC1mtvQ` | integration owner | foundation: done |
-| public remote exists without GitHub-generated content | `gh repo create` with no auto-init | `benday-client/benday-foldkit` created public; remote `main` is the empty bootstrap `6c9fe89`; the content lives on `foundation/workspace` at `ca13aba` | integration owner | foundation: done |
+| public remote exists without GitHub-generated content | `gh repo create` with no auto-init, then PR-only delivery | `benday-client/benday-foldkit` public; `main` at merge commit `8474b9c` (parents `6c9fe89` bootstrap and `6c6bc82` head), tree `81a7ecec` equal to the head, 114 files; branch `foundation/workspace` kept | integration owner | foundation: done |
 | destination is a new sibling repository, reference untouched | separate checkout | `benday-foldkit` created under `src/lexa`; reference HEAD still `237e98b3` and clean | integration owner | foundation: done |
 | eight independent reusable libraries, app-private workspace | workspace manifests, `exports` maps | `packages/{richtext,bsky-model,bsky-client,draft-store,deck,dither,media,effect-query}`; `apps/benday` | integration owner | foundation: done |
 | pinned toolchain with one frozen lockfile | catalog + `--frozen-lockfile` | `pnpm-lock.yaml`; installed Node 24.21.0, pnpm 12.16.1, foldkit 0.171.0, effect 4.1.5, @effect/platform-browser 4.1.5, typescript 7.0.2, vite 8.3.5, vitest 5.0.5, playwright 1.64.1, @atproto/api 0.29.6, oauth-client-browser 0.5.11, hls.js 1.7.4, @tanstack/query-core 5.105.0 | integration owner | foundation: done |
@@ -98,7 +98,7 @@ Three defect reviewers (kernels, protocol, app/gates) and three prose reviewers 
 - protocol: `ViewerState` is the source's two-URI shape; effect-query destroys an observer whose acquisition throws
 - prose: headers that overclaimed a check and metaphor comments were replaced with the mechanism
 
-Still open from review: real-browser media lifecycle and deck geometry evidence; dither matrix/filter values are not pinned by tests; the policy fixture for a browser report missing an engine can pass on a missing report; the capture server does not bind the served dist to the source SHA; the package proof does not yet reject an undeclared direct dependency.
+Still open from review: real-browser media lifecycle and deck geometry evidence; the capture server does not bind the served dist to the source SHA; the package proof does not yet reject an undeclared direct dependency.
 
 ## Decision: keep the pinned AT Protocol SDK
 
@@ -106,19 +106,17 @@ Still open from review: real-browser media lifecycle and deck geometry evidence;
 
 ## Open blockers and limits
 
-1. **Protection is pending its first green run.** The repository exists and both
-   commits are GitHub-verified. The three content commits were re-signed with
-   the account's registered signing key `lexa-github` because GitHub did not
-   know `contact@qex.at` as a signing key; trees, parents, authors and messages
-   are unchanged. Pull request #2 carries the slice from `foundation/workspace`
-   into the bootstrap-only `main`. PR-only protection, the required `check`
-   context and conversation resolution are enabled only after that run is
-   green; PR #1 was auto-closed during the re-signing force push and stays
-   closed as superseded.
+1. **Merged and protected.** PR #2 merged at `2026-11-22T23:03:17Z` as `8474b9c`,
+   with the head commit `6c6bc82` GitHub-verified (`reason=valid`). The three
+   content commits were re-signed with the account's registered signing key
+   `lexa-github` because GitHub did not know `contact@qex.at` as a signing key;
+   trees, parents, authors and messages are unchanged. PR #1 was auto-closed
+   during the re-signing force push and stays closed as superseded. `main`
+   requires the strict `check` context, enforces rules for admins, requires
+   conversation resolution, and refuses force pushes and deletion.
 2. **Foundation gate is not fully met.** Missing: reviewed old/new comparison
    (captures exist, review does not), benchmark harness and approved numeric
-   budgets, deck geometry and media lifecycle browser evidence, and the final
-   protection readback.
+   budgets, and deck geometry plus media lifecycle browser evidence.
 3. **Dependency declarations are out of scope by decision.** The shared base
    sets `skipLibCheck: true`; the pinned SDK declarations are not re-audited
    under our strict flags. Our own emitted declarations are still checked from
